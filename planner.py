@@ -36,9 +36,16 @@ class Operation:
 
 class Planner:
     def __init__(self, pddl_file : str = '') -> None:
+        self.ops = convert_pddl_file(pddl_file)
         pass
 
     def make_plan_astar(self, milestones : list[State]) -> list[Operation]:
+        pass
+
+    def convert_pddl_file(pddl_file : str = '') -> list[Operation]:
+        '''
+            Convert the pddl file to Operations class
+        '''
         pass
     
 if __name__ == '__main__':
@@ -53,6 +60,7 @@ if __name__ == '__main__':
     assert op1.check(x) == True
     assert op1.check(y) == False
 
+    operation-dev
     assert op1.check_strict(x) == False
     assert op1.check_strict(y) == False
     assert op2.check_strict(x) == True
