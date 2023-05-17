@@ -26,9 +26,16 @@ class Operation:
 
 class Planner:
     def __init__(self, pddl_file : str = '') -> None:
+        self.ops = convert_pddl_file(pddl_file)
         pass
 
     def make_plan_astar(self, milestones : list[State]) -> list[Operation]:
+        pass
+
+    def convert_pddl_file(pddl_file : str = '') -> list[Operation]:
+        '''
+            Convert the pddl file to Operations class
+        '''
         pass
     
 
