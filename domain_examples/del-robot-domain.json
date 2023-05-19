@@ -1,0 +1,1405 @@
+{
+    "name": "delivery-robot",
+    "operators": [
+        {
+            "name": "move-11-21",
+            "pre": {
+                "r11": true
+            },
+            "eff": {
+                "r11": false,
+                "r21": true
+            }
+        },
+        {
+            "name": "move-11-12",
+            "pre": {
+                "r11": true
+            },
+            "eff": {
+                "r11": false,
+                "r12": true
+            }
+        },
+        {
+            "name": "pickup-11",
+            "pre": {
+                "r11": true,
+                "b11": true,
+                "h": false
+            },
+            "eff": {
+                "b11": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-11",
+            "pre": {
+                "r11": true,
+                "b11": false,
+                "h": true
+            },
+            "eff": {
+                "b11": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-12-22",
+            "pre": {
+                "r12": true
+            },
+            "eff": {
+                "r12": false,
+                "r22": true
+            }
+        },
+        {
+            "name": "move-12-11",
+            "pre": {
+                "r12": true
+            },
+            "eff": {
+                "r12": false,
+                "r11": true
+            }
+        },
+        {
+            "name": "move-12-13",
+            "pre": {
+                "r12": true
+            },
+            "eff": {
+                "r12": false,
+                "r13": true
+            }
+        },
+        {
+            "name": "pickup-12",
+            "pre": {
+                "r12": true,
+                "b12": true,
+                "h": false
+            },
+            "eff": {
+                "b12": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-12",
+            "pre": {
+                "r12": true,
+                "b12": false,
+                "h": true
+            },
+            "eff": {
+                "b12": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-13-23",
+            "pre": {
+                "r13": true
+            },
+            "eff": {
+                "r13": false,
+                "r23": true
+            }
+        },
+        {
+            "name": "move-13-12",
+            "pre": {
+                "r13": true
+            },
+            "eff": {
+                "r13": false,
+                "r12": true
+            }
+        },
+        {
+            "name": "move-13-14",
+            "pre": {
+                "r13": true
+            },
+            "eff": {
+                "r13": false,
+                "r14": true
+            }
+        },
+        {
+            "name": "pickup-13",
+            "pre": {
+                "r13": true,
+                "b13": true,
+                "h": false
+            },
+            "eff": {
+                "b13": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-13",
+            "pre": {
+                "r13": true,
+                "b13": false,
+                "h": true
+            },
+            "eff": {
+                "b13": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-14-24",
+            "pre": {
+                "r14": true
+            },
+            "eff": {
+                "r14": false,
+                "r24": true
+            }
+        },
+        {
+            "name": "move-14-13",
+            "pre": {
+                "r14": true
+            },
+            "eff": {
+                "r14": false,
+                "r13": true
+            }
+        },
+        {
+            "name": "move-14-15",
+            "pre": {
+                "r14": true
+            },
+            "eff": {
+                "r14": false,
+                "r15": true
+            }
+        },
+        {
+            "name": "pickup-14",
+            "pre": {
+                "r14": true,
+                "b14": true,
+                "h": false
+            },
+            "eff": {
+                "b14": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-14",
+            "pre": {
+                "r14": true,
+                "b14": false,
+                "h": true
+            },
+            "eff": {
+                "b14": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-15-25",
+            "pre": {
+                "r15": true
+            },
+            "eff": {
+                "r15": false,
+                "r25": true
+            }
+        },
+        {
+            "name": "move-15-14",
+            "pre": {
+                "r15": true
+            },
+            "eff": {
+                "r15": false,
+                "r14": true
+            }
+        },
+        {
+            "name": "pickup-15",
+            "pre": {
+                "r15": true,
+                "b15": true,
+                "h": false
+            },
+            "eff": {
+                "b15": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-15",
+            "pre": {
+                "r15": true,
+                "b15": false,
+                "h": true
+            },
+            "eff": {
+                "b15": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-21-11",
+            "pre": {
+                "r21": true
+            },
+            "eff": {
+                "r21": false,
+                "r11": true
+            }
+        },
+        {
+            "name": "move-21-31",
+            "pre": {
+                "r21": true
+            },
+            "eff": {
+                "r21": false,
+                "r31": true
+            }
+        },
+        {
+            "name": "move-21-22",
+            "pre": {
+                "r21": true
+            },
+            "eff": {
+                "r21": false,
+                "r22": true
+            }
+        },
+        {
+            "name": "pickup-21",
+            "pre": {
+                "r21": true,
+                "b21": true,
+                "h": false
+            },
+            "eff": {
+                "b21": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-21",
+            "pre": {
+                "r21": true,
+                "b21": false,
+                "h": true
+            },
+            "eff": {
+                "b21": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-22-12",
+            "pre": {
+                "r22": true
+            },
+            "eff": {
+                "r22": false,
+                "r12": true
+            }
+        },
+        {
+            "name": "move-22-32",
+            "pre": {
+                "r22": true
+            },
+            "eff": {
+                "r22": false,
+                "r32": true
+            }
+        },
+        {
+            "name": "move-22-21",
+            "pre": {
+                "r22": true
+            },
+            "eff": {
+                "r22": false,
+                "r21": true
+            }
+        },
+        {
+            "name": "move-22-23",
+            "pre": {
+                "r22": true
+            },
+            "eff": {
+                "r22": false,
+                "r23": true
+            }
+        },
+        {
+            "name": "pickup-22",
+            "pre": {
+                "r22": true,
+                "b22": true,
+                "h": false
+            },
+            "eff": {
+                "b22": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-22",
+            "pre": {
+                "r22": true,
+                "b22": false,
+                "h": true
+            },
+            "eff": {
+                "b22": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-23-13",
+            "pre": {
+                "r23": true
+            },
+            "eff": {
+                "r23": false,
+                "r13": true
+            }
+        },
+        {
+            "name": "move-23-33",
+            "pre": {
+                "r23": true
+            },
+            "eff": {
+                "r23": false,
+                "r33": true
+            }
+        },
+        {
+            "name": "move-23-22",
+            "pre": {
+                "r23": true
+            },
+            "eff": {
+                "r23": false,
+                "r22": true
+            }
+        },
+        {
+            "name": "move-23-24",
+            "pre": {
+                "r23": true
+            },
+            "eff": {
+                "r23": false,
+                "r24": true
+            }
+        },
+        {
+            "name": "pickup-23",
+            "pre": {
+                "r23": true,
+                "b23": true,
+                "h": false
+            },
+            "eff": {
+                "b23": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-23",
+            "pre": {
+                "r23": true,
+                "b23": false,
+                "h": true
+            },
+            "eff": {
+                "b23": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-24-14",
+            "pre": {
+                "r24": true
+            },
+            "eff": {
+                "r24": false,
+                "r14": true
+            }
+        },
+        {
+            "name": "move-24-34",
+            "pre": {
+                "r24": true
+            },
+            "eff": {
+                "r24": false,
+                "r34": true
+            }
+        },
+        {
+            "name": "move-24-23",
+            "pre": {
+                "r24": true
+            },
+            "eff": {
+                "r24": false,
+                "r23": true
+            }
+        },
+        {
+            "name": "move-24-25",
+            "pre": {
+                "r24": true
+            },
+            "eff": {
+                "r24": false,
+                "r25": true
+            }
+        },
+        {
+            "name": "pickup-24",
+            "pre": {
+                "r24": true,
+                "b24": true,
+                "h": false
+            },
+            "eff": {
+                "b24": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-24",
+            "pre": {
+                "r24": true,
+                "b24": false,
+                "h": true
+            },
+            "eff": {
+                "b24": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-25-15",
+            "pre": {
+                "r25": true
+            },
+            "eff": {
+                "r25": false,
+                "r15": true
+            }
+        },
+        {
+            "name": "move-25-35",
+            "pre": {
+                "r25": true
+            },
+            "eff": {
+                "r25": false,
+                "r35": true
+            }
+        },
+        {
+            "name": "move-25-24",
+            "pre": {
+                "r25": true
+            },
+            "eff": {
+                "r25": false,
+                "r24": true
+            }
+        },
+        {
+            "name": "pickup-25",
+            "pre": {
+                "r25": true,
+                "b25": true,
+                "h": false
+            },
+            "eff": {
+                "b25": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-25",
+            "pre": {
+                "r25": true,
+                "b25": false,
+                "h": true
+            },
+            "eff": {
+                "b25": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-31-21",
+            "pre": {
+                "r31": true
+            },
+            "eff": {
+                "r31": false,
+                "r21": true
+            }
+        },
+        {
+            "name": "move-31-41",
+            "pre": {
+                "r31": true
+            },
+            "eff": {
+                "r31": false,
+                "r41": true
+            }
+        },
+        {
+            "name": "move-31-32",
+            "pre": {
+                "r31": true
+            },
+            "eff": {
+                "r31": false,
+                "r32": true
+            }
+        },
+        {
+            "name": "pickup-31",
+            "pre": {
+                "r31": true,
+                "b31": true,
+                "h": false
+            },
+            "eff": {
+                "b31": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-31",
+            "pre": {
+                "r31": true,
+                "b31": false,
+                "h": true
+            },
+            "eff": {
+                "b31": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-32-22",
+            "pre": {
+                "r32": true
+            },
+            "eff": {
+                "r32": false,
+                "r22": true
+            }
+        },
+        {
+            "name": "move-32-42",
+            "pre": {
+                "r32": true
+            },
+            "eff": {
+                "r32": false,
+                "r42": true
+            }
+        },
+        {
+            "name": "move-32-31",
+            "pre": {
+                "r32": true
+            },
+            "eff": {
+                "r32": false,
+                "r31": true
+            }
+        },
+        {
+            "name": "move-32-33",
+            "pre": {
+                "r32": true
+            },
+            "eff": {
+                "r32": false,
+                "r33": true
+            }
+        },
+        {
+            "name": "pickup-32",
+            "pre": {
+                "r32": true,
+                "b32": true,
+                "h": false
+            },
+            "eff": {
+                "b32": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-32",
+            "pre": {
+                "r32": true,
+                "b32": false,
+                "h": true
+            },
+            "eff": {
+                "b32": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-33-23",
+            "pre": {
+                "r33": true
+            },
+            "eff": {
+                "r33": false,
+                "r23": true
+            }
+        },
+        {
+            "name": "move-33-43",
+            "pre": {
+                "r33": true
+            },
+            "eff": {
+                "r33": false,
+                "r43": true
+            }
+        },
+        {
+            "name": "move-33-32",
+            "pre": {
+                "r33": true
+            },
+            "eff": {
+                "r33": false,
+                "r32": true
+            }
+        },
+        {
+            "name": "move-33-34",
+            "pre": {
+                "r33": true
+            },
+            "eff": {
+                "r33": false,
+                "r34": true
+            }
+        },
+        {
+            "name": "pickup-33",
+            "pre": {
+                "r33": true,
+                "b33": true,
+                "h": false
+            },
+            "eff": {
+                "b33": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-33",
+            "pre": {
+                "r33": true,
+                "b33": false,
+                "h": true
+            },
+            "eff": {
+                "b33": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-34-24",
+            "pre": {
+                "r34": true
+            },
+            "eff": {
+                "r34": false,
+                "r24": true
+            }
+        },
+        {
+            "name": "move-34-44",
+            "pre": {
+                "r34": true
+            },
+            "eff": {
+                "r34": false,
+                "r44": true
+            }
+        },
+        {
+            "name": "move-34-33",
+            "pre": {
+                "r34": true
+            },
+            "eff": {
+                "r34": false,
+                "r33": true
+            }
+        },
+        {
+            "name": "move-34-35",
+            "pre": {
+                "r34": true
+            },
+            "eff": {
+                "r34": false,
+                "r35": true
+            }
+        },
+        {
+            "name": "pickup-34",
+            "pre": {
+                "r34": true,
+                "b34": true,
+                "h": false
+            },
+            "eff": {
+                "b34": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-34",
+            "pre": {
+                "r34": true,
+                "b34": false,
+                "h": true
+            },
+            "eff": {
+                "b34": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-35-25",
+            "pre": {
+                "r35": true
+            },
+            "eff": {
+                "r35": false,
+                "r25": true
+            }
+        },
+        {
+            "name": "move-35-45",
+            "pre": {
+                "r35": true
+            },
+            "eff": {
+                "r35": false,
+                "r45": true
+            }
+        },
+        {
+            "name": "move-35-34",
+            "pre": {
+                "r35": true
+            },
+            "eff": {
+                "r35": false,
+                "r34": true
+            }
+        },
+        {
+            "name": "pickup-35",
+            "pre": {
+                "r35": true,
+                "b35": true,
+                "h": false
+            },
+            "eff": {
+                "b35": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-35",
+            "pre": {
+                "r35": true,
+                "b35": false,
+                "h": true
+            },
+            "eff": {
+                "b35": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-41-31",
+            "pre": {
+                "r41": true
+            },
+            "eff": {
+                "r41": false,
+                "r31": true
+            }
+        },
+        {
+            "name": "move-41-51",
+            "pre": {
+                "r41": true
+            },
+            "eff": {
+                "r41": false,
+                "r51": true
+            }
+        },
+        {
+            "name": "move-41-42",
+            "pre": {
+                "r41": true
+            },
+            "eff": {
+                "r41": false,
+                "r42": true
+            }
+        },
+        {
+            "name": "pickup-41",
+            "pre": {
+                "r41": true,
+                "b41": true,
+                "h": false
+            },
+            "eff": {
+                "b41": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-41",
+            "pre": {
+                "r41": true,
+                "b41": false,
+                "h": true
+            },
+            "eff": {
+                "b41": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-42-32",
+            "pre": {
+                "r42": true
+            },
+            "eff": {
+                "r42": false,
+                "r32": true
+            }
+        },
+        {
+            "name": "move-42-52",
+            "pre": {
+                "r42": true
+            },
+            "eff": {
+                "r42": false,
+                "r52": true
+            }
+        },
+        {
+            "name": "move-42-41",
+            "pre": {
+                "r42": true
+            },
+            "eff": {
+                "r42": false,
+                "r41": true
+            }
+        },
+        {
+            "name": "move-42-43",
+            "pre": {
+                "r42": true
+            },
+            "eff": {
+                "r42": false,
+                "r43": true
+            }
+        },
+        {
+            "name": "pickup-42",
+            "pre": {
+                "r42": true,
+                "b42": true,
+                "h": false
+            },
+            "eff": {
+                "b42": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-42",
+            "pre": {
+                "r42": true,
+                "b42": false,
+                "h": true
+            },
+            "eff": {
+                "b42": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-43-33",
+            "pre": {
+                "r43": true
+            },
+            "eff": {
+                "r43": false,
+                "r33": true
+            }
+        },
+        {
+            "name": "move-43-53",
+            "pre": {
+                "r43": true
+            },
+            "eff": {
+                "r43": false,
+                "r53": true
+            }
+        },
+        {
+            "name": "move-43-42",
+            "pre": {
+                "r43": true
+            },
+            "eff": {
+                "r43": false,
+                "r42": true
+            }
+        },
+        {
+            "name": "move-43-44",
+            "pre": {
+                "r43": true
+            },
+            "eff": {
+                "r43": false,
+                "r44": true
+            }
+        },
+        {
+            "name": "pickup-43",
+            "pre": {
+                "r43": true,
+                "b43": true,
+                "h": false
+            },
+            "eff": {
+                "b43": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-43",
+            "pre": {
+                "r43": true,
+                "b43": false,
+                "h": true
+            },
+            "eff": {
+                "b43": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-44-34",
+            "pre": {
+                "r44": true
+            },
+            "eff": {
+                "r44": false,
+                "r34": true
+            }
+        },
+        {
+            "name": "move-44-54",
+            "pre": {
+                "r44": true
+            },
+            "eff": {
+                "r44": false,
+                "r54": true
+            }
+        },
+        {
+            "name": "move-44-43",
+            "pre": {
+                "r44": true
+            },
+            "eff": {
+                "r44": false,
+                "r43": true
+            }
+        },
+        {
+            "name": "move-44-45",
+            "pre": {
+                "r44": true
+            },
+            "eff": {
+                "r44": false,
+                "r45": true
+            }
+        },
+        {
+            "name": "pickup-44",
+            "pre": {
+                "r44": true,
+                "b44": true,
+                "h": false
+            },
+            "eff": {
+                "b44": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-44",
+            "pre": {
+                "r44": true,
+                "b44": false,
+                "h": true
+            },
+            "eff": {
+                "b44": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-45-35",
+            "pre": {
+                "r45": true
+            },
+            "eff": {
+                "r45": false,
+                "r35": true
+            }
+        },
+        {
+            "name": "move-45-55",
+            "pre": {
+                "r45": true
+            },
+            "eff": {
+                "r45": false,
+                "r55": true
+            }
+        },
+        {
+            "name": "move-45-44",
+            "pre": {
+                "r45": true
+            },
+            "eff": {
+                "r45": false,
+                "r44": true
+            }
+        },
+        {
+            "name": "pickup-45",
+            "pre": {
+                "r45": true,
+                "b45": true,
+                "h": false
+            },
+            "eff": {
+                "b45": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-45",
+            "pre": {
+                "r45": true,
+                "b45": false,
+                "h": true
+            },
+            "eff": {
+                "b45": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-51-41",
+            "pre": {
+                "r51": true
+            },
+            "eff": {
+                "r51": false,
+                "r41": true
+            }
+        },
+        {
+            "name": "move-51-52",
+            "pre": {
+                "r51": true
+            },
+            "eff": {
+                "r51": false,
+                "r52": true
+            }
+        },
+        {
+            "name": "pickup-51",
+            "pre": {
+                "r51": true,
+                "b51": true,
+                "h": false
+            },
+            "eff": {
+                "b51": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-51",
+            "pre": {
+                "r51": true,
+                "b51": false,
+                "h": true
+            },
+            "eff": {
+                "b51": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-52-42",
+            "pre": {
+                "r52": true
+            },
+            "eff": {
+                "r52": false,
+                "r42": true
+            }
+        },
+        {
+            "name": "move-52-51",
+            "pre": {
+                "r52": true
+            },
+            "eff": {
+                "r52": false,
+                "r51": true
+            }
+        },
+        {
+            "name": "move-52-53",
+            "pre": {
+                "r52": true
+            },
+            "eff": {
+                "r52": false,
+                "r53": true
+            }
+        },
+        {
+            "name": "pickup-52",
+            "pre": {
+                "r52": true,
+                "b52": true,
+                "h": false
+            },
+            "eff": {
+                "b52": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-52",
+            "pre": {
+                "r52": true,
+                "b52": false,
+                "h": true
+            },
+            "eff": {
+                "b52": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-53-43",
+            "pre": {
+                "r53": true
+            },
+            "eff": {
+                "r53": false,
+                "r43": true
+            }
+        },
+        {
+            "name": "move-53-52",
+            "pre": {
+                "r53": true
+            },
+            "eff": {
+                "r53": false,
+                "r52": true
+            }
+        },
+        {
+            "name": "move-53-54",
+            "pre": {
+                "r53": true
+            },
+            "eff": {
+                "r53": false,
+                "r54": true
+            }
+        },
+        {
+            "name": "pickup-53",
+            "pre": {
+                "r53": true,
+                "b53": true,
+                "h": false
+            },
+            "eff": {
+                "b53": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-53",
+            "pre": {
+                "r53": true,
+                "b53": false,
+                "h": true
+            },
+            "eff": {
+                "b53": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-54-44",
+            "pre": {
+                "r54": true
+            },
+            "eff": {
+                "r54": false,
+                "r44": true
+            }
+        },
+        {
+            "name": "move-54-53",
+            "pre": {
+                "r54": true
+            },
+            "eff": {
+                "r54": false,
+                "r53": true
+            }
+        },
+        {
+            "name": "move-54-55",
+            "pre": {
+                "r54": true
+            },
+            "eff": {
+                "r54": false,
+                "r55": true
+            }
+        },
+        {
+            "name": "pickup-54",
+            "pre": {
+                "r54": true,
+                "b54": true,
+                "h": false
+            },
+            "eff": {
+                "b54": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-54",
+            "pre": {
+                "r54": true,
+                "b54": false,
+                "h": true
+            },
+            "eff": {
+                "b54": true,
+                "h": false
+            }
+        },
+        {
+            "name": "move-55-45",
+            "pre": {
+                "r55": true
+            },
+            "eff": {
+                "r55": false,
+                "r45": true
+            }
+        },
+        {
+            "name": "move-55-54",
+            "pre": {
+                "r55": true
+            },
+            "eff": {
+                "r55": false,
+                "r54": true
+            }
+        },
+        {
+            "name": "pickup-55",
+            "pre": {
+                "r55": true,
+                "b55": true,
+                "h": false
+            },
+            "eff": {
+                "b55": false,
+                "h": true
+            }
+        },
+        {
+            "name": "dropoff-55",
+            "pre": {
+                "r55": true,
+                "b55": false,
+                "h": true
+            },
+            "eff": {
+                "b55": true,
+                "h": false
+            }
+        }
+    ]
+}
