@@ -4,6 +4,19 @@ class State:
     def __init__(self, dbase: dict[str, bool]) -> None:
         self.dbase = {var: val for var,val in dbase.items()}
     
+    def __hash__(self):
+        # there's probably a better option than this hash, but it should work and ensure that
+        # multiple State objects with the same database are treated as equivalent
+        return hash(tuple(self.dbase.items()))
+
+    def __eq__(self, rhs):
+        try:
+            assert isinstance(rhs, State)
+        except AssertionError as e:
+            print(rhs)
+            raise e
+        return self.dbase == rhs.dbase
+    
 class Operation:
     def __init__(self, preconditions: dict[str, bool], effects: dict[str, bool]) -> None:
         self.pre = {var: val for var,val in preconditions.items()}
@@ -44,11 +57,11 @@ class PriorityQueue:
     def empty(self) -> bool:
         return not self.heap
     
-    def put(self, item: State, priority: int):
-        heapq.heappush(self.heap, [priority, item])
+    def put(self, item: State, priority: int, tiebreaker: int):
+        heapq.heappush(self.heap, [priority, tiebreaker, item])
     
     def get(self) -> State:
-        return heapq.heappop(self.heap)[1]
+        return heapq.heappop(self.heap)[2]
 
 class Planner:
     def __init__(self, pddl_file : str = '') -> None:
@@ -89,10 +102,11 @@ class Planner:
         g = 0
         h = self.calc_h(start, goal)
         open_states = PriorityQueue()
-        open_states.put(start, h)
+        open_states.put(start, h, 0)
         closed_states = list()
-        visited = dict[State , State]
-        
+        visited : dict[State, State] = {} 
+        c = 1
+
         while not open_states.empty():
             current = open_states.get()
             if all(var in current.dbase and current.dbase[var] == val for var, val in goal.dbase.items()):
@@ -103,11 +117,12 @@ class Planner:
                 if op.check(current):
                     print("applying" , name)
                     new_state = op.apply(current)
-                    if new_state not in closed_states and new_state not in open_states.heap:
+                    if new_state not in closed_states and new_state not in [s[2] for s in open_states.heap]:
                         g = g + 1
                         if name == 'moveToR2': g = g + 1
                         h = self.calc_h(new_state, goal)
-                        open_states.put(new_state, g + h)
+                        open_states.put(new_state, g + h, c)
+                        c += 1
                         visited.update({new_state : current})
         return []
 
