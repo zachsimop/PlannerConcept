@@ -74,14 +74,13 @@ class PriorityQueue:
         return [val[2] for val in self.heap]
 
 class Planner:
-  
-     def __init__(self, name : str = None, dom_file : str = None) -> None:
-        self.name = name
-        self.ops = []
 
+    def __init__(self, name : str = None, dom_file : str = None) -> None:
+        self.name = name
+        self.ops = {}
         if dom_file is not None:
             self.load_domain(dom_file)
-
+            
     def calc_h(self, x: State, y: State) -> int:
         '''
             calculates the hamming distance of two lists
@@ -153,6 +152,7 @@ class Planner:
             path.append(current)
             current = visited[current]
         path.append(current)
+        print(path)
         return path
     
     def init_test(self):
@@ -213,7 +213,7 @@ class Planner:
 
         for op in j_obj['operators']:
             op_name = op.get('name', None)
-            self.ops.append(Operation(op['pre'], op['eff'], op_name))
+            self.ops.update({op_name : Operation(op['pre'], op['eff'], op_name)})
 
     def save_domain(self, dom_file : str = '') -> None:
         j_obj = {}
@@ -339,7 +339,7 @@ if __name__ == '__main__':
     #State Equality tests
     #assert a == c
     assert a != b
-
+    P.load_domain('./domain_examples/del-robot-domain.json')
     #solve and print
     sol = P.make_plan_astar([a,b])
     print(*[var.op for var in sol[::-1]], sep = "\n")
