@@ -11,7 +11,11 @@ class State:
         return hash(tuple(self.dbase.items()))
 
     def __eq__(self, rhs):
-        assert isinstance(rhs, State)
+        try:
+            assert isinstance(rhs, State)
+        except AssertionError as e:
+            print(rhs)
+            raise e
         return self.dbase == rhs.dbase
         
 class Operation:
@@ -89,7 +93,7 @@ class Planner:
         for var, val in x.dbase.items():
             if val:
                 if var not in y.dbase or not y.dbase[var]:
-                    distance = distance + 1
+                    distance += 1
         return distance
 
     def make_plan_astar(self, milestones : list[State]) -> list[Operation]:
@@ -102,14 +106,14 @@ class Planner:
         #initalize
         open_states = PriorityQueue()
         closed_states = list()
-        visited: dict[State , State] = {}
+        visited : dict[State , State] = {}
         start = milestones[0]
-        goal = milestones[-1]
+        goal  = milestones[-1]
         start.op='Begin'
         g = 0
         c = 0
         open_states.put(start, self.calc_h(start, goal), c)
-        c = c + 1
+        c += 1
 
         #main loop
         while not open_states.empty():
@@ -125,9 +129,9 @@ class Planner:
                 if op.check(current):
                     new_state = op.apply(current)
                     if new_state not in closed_states and new_state not in open_states.states():
-                        g = g + 1      
+                        g += 1      
                         open_states.put(new_state, g + self.calc_h(new_state, goal), c)
-                        c = c + 1
+                        c += 1
                         new_state.op = name
                         visited.update({new_state : current})
         return []
