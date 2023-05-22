@@ -78,27 +78,21 @@ class Planner:
     def __init__(self, name : str = None, dom_file : str = None) -> None:
         self.name = name
         self.ops = {}
+        self.sol = []
         if dom_file is not None:
             self.load_domain(dom_file)
-            
+
     def calc_h(self, x: State, y: State) -> int:
         '''
-            calculates the hamming distance of two lists
-            it assumes that the lists are not in order. 
-        '''
-        return self.calc_h_helper(x,y) + self.calc_h_helper(y,x)
-
-    def calc_h_helper(self, x: State, y: State) -> int:
-        '''
-            returns the number of propositions that are not
-            the same between two given states. It counts a difference
-            if the proposition in x is either not in y or labled as false in y.
-            It will not evaulate a proposition of x if labled as false.
+            calculates hamming distance
         '''
         distance = 0
         for var, val in x.dbase.items():
             if val:
                 if var not in y.dbase or not y.dbase[var]:
+                    distance += 1
+            else:
+                if var in y.dbase and y.dbase[var]:
                     distance += 1
         return distance
 
@@ -115,7 +109,8 @@ class Planner:
         visited       = {}
         start         = milestones[0]
         goal          = milestones[-1]
-        start.op      ='Begin'
+        start.op      = 'Begin'
+        goal.op       = 'End'
         g = 0
         c = 0
         open_states.put(start, self.calc_h(start, goal), c)
@@ -123,24 +118,25 @@ class Planner:
 
         #main loop
         while not open_states.empty():
-            
+
             current = open_states.get()
-            
-            if current == goal:
-                goal.op = current.op
-                return self.getPath(visited, goal, start)
+            if self.compare_goal(current, goal):
+                visited.update({goal : current})
+                self.sol = self.getPath(visited, goal, start)
+                return self.sol
             
             closed_states.append(current)
+            g += 1
             for name,op in self.ops.items():
                 if op.check(current):
                     new_state = op.apply(current)
-                    if new_state not in closed_states and new_state not in open_states.states():
-                        g += 1      
-                        open_states.put(new_state, g + self.calc_h(new_state, goal), c)
+                    if new_state not in closed_states and new_state not in open_states.states():    
+                        open_states.put(new_state, g + self.calc_h(goal, new_state), c)
                         c += 1
                         new_state.op = name
                         visited.update({new_state : current})
-        return []
+        self.sol = []
+        return self.sol
 
     def getPath(self, visited: dict[State:State], goal:State, start:State):
         '''
@@ -152,7 +148,6 @@ class Planner:
             path.append(current)
             current = visited[current]
         path.append(current)
-        print(path)
         return path
     
     def init_test(self):
@@ -230,10 +225,22 @@ class Planner:
 
         with open(dom_file, 'w') as fout:
             fout.write(json.JSONEncoder().encode(j_obj))
-        
 
-    def make_plan_astar(self, milestones : list[State]) -> list[Operation]:
-        pass
+    def compare_goal(self, current: State, goal: State) -> bool:
+        for var, val in goal.dbase.items():
+            if val:
+                if var not in current.dbase or not current.dbase[var]:
+                    return False
+            else:
+                if var in current.dbase and current.dbase[var]:
+                    return False
+        return True
+    
+    def print_sol(self):
+        if self.sol:
+            print(*[var.op for var in self.sol[::-1]], sep = "\n")
+        else:
+            print("No Solution")
 
 def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
     domain = {"name": "delivery-robot",
@@ -333,16 +340,19 @@ if __name__ == '__main__':
     P.init_test()
 
     a = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
-    b = State({'inR1':True,'inR2':False,'R1Clean':True,'R2Clean':True})
+    b = State({'R2Clean' : True, 'inR1':True,'inR2':True,})
     c = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
+
+    d = State({'r23': True, 'b23': True})
+    e = State({'r55': True, 'b55': True})
 
     #State Equality tests
     #assert a == c
     assert a != b
     P.load_domain('./domain_examples/del-robot-domain.json')
     #solve and print
-    sol = P.make_plan_astar([a,b])
-    print(*[var.op for var in sol[::-1]], sep = "\n")
+    P.make_plan_astar([d,e])
+    P.print_sol()
 
 #Code that should be used if we ever transition to weighted graphs
 #insert under 'new_state = op.apply(current)'
