@@ -146,7 +146,6 @@ if __name__ == '__main__':
     assert op1.check(x) == True
     assert op1.check(y) == False
 
-    operation-dev
     assert op1.check_strict(x) == False
     assert op1.check_strict(y) == False
     assert op2.check_strict(x) == True
