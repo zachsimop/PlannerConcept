@@ -1,0 +1,9 @@
+Extension ideas:
+    LLM connection - induce language model to describe the plan in natural language (e.g. narrate a delivery robot path through an office)
+        Consider methods for identifying the subplot segments i.e. how to know when a subplot ends? Idea: two randomization parameters, k and m. k determines likelihood of veering off into a subplot. m determines average length of subplot so subplot length is known prior to planning. When in subplot mode, operations are greedily and randomly for subplot-length steps and search resumes normally from the resulting state.
+        
+            This raises a new design question of how to allow for this without removing heuristic from search (because an astar search will always prefer the optimal branch over any branch with subplots). One option is the following process: generate optimal plan, randomly choose a subplot start point in optimal path, generate subplot as above, regenerate plan with new starting state as the final state in the subplot, repeat.
+
+            Once subplots are identified and the final (suboptimal) plan is generated, induce LLM (possibly in a separate generation) to provide more creative explanations for the deviation (e.g. the robot got lost, its battery was low and needed an emergency charge, etc.)
+
+    Need to further consider Jesse's suggestion of other ways to induce subplots a la Riedl and Bulitko. More specifically, what can be optimized for in place of plan length to generate more interesting stories. (really need to make time to reread the 3 narrative planning papers from Riedl, Bulitko, and Young)
