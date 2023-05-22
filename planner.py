@@ -3,7 +3,17 @@ import heapq
 class State:
     def __init__(self, dbase: dict[str, bool]) -> None:
         self.dbase = {var: val for var,val in dbase.items()}
-    
+        self.op = None
+
+    def __hash__(self):
+        # there's probably a better option than this hash, but it should work and ensure that
+        # multiple State objects with the same database are treated as equivalent
+        return hash(tuple(self.dbase.items()))
+
+    def __eq__(self, rhs):
+        assert isinstance(rhs, State)
+        return self.dbase == rhs.dbase
+        
 class Operation:
     def __init__(self, preconditions: dict[str, bool], effects: dict[str, bool]) -> None:
         self.pre = {var: val for var,val in preconditions.items()}
@@ -44,11 +54,17 @@ class PriorityQueue:
     def empty(self) -> bool:
         return not self.heap
     
-    def put(self, item: State, priority: int):
-        heapq.heappush(self.heap, [priority, item])
+    def put(self, state: State, priority: int, c: int):
+        heapq.heappush(self.heap, [priority, c, state])
     
     def get(self) -> State:
-        return heapq.heappop(self.heap)[1]
+        return heapq.heappop(self.heap)[2]
+    
+    def states(self) -> list():
+        '''
+            Return a list of the states in the priority queue
+        '''
+        return [val[2] for val in self.heap]
 
 class Planner:
     def __init__(self, pddl_file : str = '') -> None:
@@ -84,30 +100,35 @@ class Planner:
                 if state is final_state, return state.
         '''
         #initalize
+        open_states = PriorityQueue()
+        closed_states = list()
+        visited: dict[State , State] = {}
         start = milestones[0]
         goal = milestones[-1]
+        start.op='Begin'
         g = 0
-        h = self.calc_h(start, goal)
-        open_states = PriorityQueue()
-        open_states.put(start, h)
-        closed_states = list()
-        visited = dict[State , State]
-        
+        c = 0
+        open_states.put(start, self.calc_h(start, goal), c)
+        c = c + 1
+
+        #main loop
         while not open_states.empty():
+            
             current = open_states.get()
-            if all(var in current.dbase and current.dbase[var] == val for var, val in goal.dbase.items()):
+            
+            if current == goal:
+                goal.op = current.op
                 return self.getPath(visited, goal, start)
             
             closed_states.append(current)
             for name,op in self.ops.items():
                 if op.check(current):
-                    print("applying" , name)
                     new_state = op.apply(current)
-                    if new_state not in closed_states and new_state not in open_states.heap:
-                        g = g + 1
-                        if name == 'moveToR2': g = g + 1
-                        h = self.calc_h(new_state, goal)
-                        open_states.put(new_state, g + h)
+                    if new_state not in closed_states and new_state not in open_states.states():
+                        g = g + 1      
+                        open_states.put(new_state, g + self.calc_h(new_state, goal), c)
+                        c = c + 1
+                        new_state.op = name
                         visited.update({new_state : current})
         return []
 
@@ -117,7 +138,7 @@ class Planner:
         '''
         current = goal
         path = list()
-        while not all(var in current.dbase and current.dbase[var] == val for var, val in start.dbase.items()):
+        while not current == start:
             path.append(current)
             current = visited[current]
         path.append(current)
@@ -156,6 +177,7 @@ class Planner:
                                  {'inR1' : True},
                                  {'inR1' : False, 'inR2' : True})
                          })
+                         
         #self.ops.append()
     
 if __name__ == '__main__':
@@ -213,18 +235,26 @@ if __name__ == '__main__':
     P.init_test()
 
     a = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
-    b = State({'inR1':False,'inR2':True,'R1Clean':True,'R2Clean':True})
+    b = State({'inR1':True,'inR2':False,'R1Clean':True,'R2Clean':True})
     c = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
-    sol = P.make_plan_astar([a,b])
 
-    #print out solution
-    print(*[var.dbase for var in sol], sep = "\n")
+    #State Equality tests
+    #assert a == c
+    assert a != b
+
+    #solve and print
+    sol = P.make_plan_astar([a,b])
+    print(*[var.op for var in sol[::-1]], sep = "\n")
+
+#Code that should be used if we ever transition to weighted graphs
+#insert under 'new_state = op.apply(current)'
 '''
                     if new_state in open_states:
                         if new_cost <= new_state in open_states:
                             open_states.remove(new_state)
                     if new_state in closed:
                         if new_cost <= new_state in closed:
-                            closed_states.'''
+                            closed_states.
+'''
 
     
