@@ -104,12 +104,12 @@ class Planner:
                 if state is final_state, return state.
         '''
         #initalize
-        open_states = PriorityQueue()
+        open_states   = PriorityQueue()
         closed_states = list()
-        visited : dict[State , State] = {}
-        start = milestones[0]
-        goal  = milestones[-1]
-        start.op='Begin'
+        visited       = {}
+        start         = milestones[0]
+        goal          = milestones[-1]
+        start.op      ='Begin'
         g = 0
         c = 0
         open_states.put(start, self.calc_h(start, goal), c)
