@@ -108,9 +108,7 @@ class Planner:
         closed_states = list()
         visited       = {}
         start         = milestones[0]
-        goal          = milestones[-1]
-        start.op      = 'Begin'
-        goal.op       = 'End'
+        goal          = milestones[1]
         g = 0
         c = 0
         open_states.put(start, self.calc_h(start, goal), c)
@@ -122,7 +120,10 @@ class Planner:
             current = open_states.get()
             if self.compare_goal(current, goal):
                 visited.update({goal : current})
-                self.sol = self.getPath(visited, goal, start)
+                self.sol = self.getPath(visited, goal, start)[::-1]
+                if len(milestones) != 2:
+                    self.sol[-1].op += " |m| "
+                    self.sol += self.make_plan_astar(milestones[1:])
                 return self.sol
             
             closed_states.append(current)
@@ -144,10 +145,10 @@ class Planner:
         '''
         current = goal
         path = list()
+        current = visited[current]
         while not current == start:
             path.append(current)
             current = visited[current]
-        path.append(current)
         return path
     
     def init_test(self):
@@ -238,7 +239,9 @@ class Planner:
     
     def print_sol(self):
         if self.sol:
-            print(*[var.op for var in self.sol[::-1]], sep = "\n")
+            self.sol[0].op += " |s| "
+            self.sol[-1].op += " |g| "
+            print(*[var.op for var in self.sol], sep = "\n")
         else:
             print("No Solution")
 
@@ -343,15 +346,17 @@ if __name__ == '__main__':
     b = State({'R2Clean' : True, 'inR1':True,'inR2':True,})
     c = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
 
-    d = State({'r23': True, 'b23': True})
-    e = State({'r55': True, 'b55': True})
+    d = State({'r23': True})
+    e = State({'r34': True})
+    f = State({'r55': True})
+    g = State({'r51': True})
 
     #State Equality tests
     #assert a == c
     assert a != b
     P.load_domain('./domain_examples/del-robot-domain.json')
     #solve and print
-    P.make_plan_astar([d,e])
+    P.make_plan_astar([d,e,f,g])
     P.print_sol()
 
 #Code that should be used if we ever transition to weighted graphs
