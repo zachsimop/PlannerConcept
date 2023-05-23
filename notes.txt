@@ -7,3 +7,15 @@ Extension ideas:
             Once subplots are identified and the final (suboptimal) plan is generated, induce LLM (possibly in a separate generation) to provide more creative explanations for the deviation (e.g. the robot got lost, its battery was low and needed an emergency charge, etc.)
 
     Need to further consider Jesse's suggestion of other ways to induce subplots a la Riedl and Bulitko. More specifically, what can be optimized for in place of plan length to generate more interesting stories. (really need to make time to reread the 3 narrative planning papers from Riedl, Bulitko, and Young)
+
+
+    split up plan into consecutive similarly named operations (group all move-X-Y together), use flipped interaction to have ChatGPT narrativize a single group of operations at the same time and ask for the next actions when finished. Grouping is mainly necessary to avoid needing a new generation every time the agent moves a single cell. This approach has the further benefit that it would be even easier to group after switching to predicate logic (group by consecutive calls to the same operation regardless of variables)
+        Can approximate similar-named by assuming that all operations are named opname-a-b-c-... where a, b, c, ... are all variables (i.e. the expected result of a naive, but direct translation from predicate to propositional), grouping by operations that start with opname
+
+
+    Starting prompt to work off of:
+        You are a professional {genre} writer. I am a computer scientist. We are collaborating on an experimental writing technique. I will provide you with lists of operations that result from a classical planner built on propositional logic, each separated by a *. For example, move-11-21 is an operation that moves an agent from cell (1,1) to cell (2,1) in a grid. You will respond with a fictional story about {subject} where main character takes actions that match the plan operations. For example, "move-11-21 * move-21-31 * move-31-41 * move-41-42" should give a story where the main character is traveling. Here is your plan: {plan}
+        
+        genre: historical fiction
+        subject: Abraham Lincoln
+        plan: move_11_21 * move_21_31 * move_31_32 * move_32_22 * move_22_21 * move_21_11 * pickup-11 * move_11_12 * move_12_13 * move_13_14 * drop_14 * move_14_15
