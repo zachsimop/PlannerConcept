@@ -1,3 +1,15 @@
+#OpenAi
+from langchain.llms import OpenAI
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from getpass import getpass         #To get the openai key
+
+#Llama
+from langchain.embeddings import LlamaCppEmbeddings
+from langchain.llms import LlamaCpp
+from langchain.vectorstores import Chroma
+from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
+
 import heapq
 import json
 import os
@@ -287,7 +299,99 @@ def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
     
     with open(output_file, 'w') as fout:
         fout.write(json.JSONEncoder().encode(domain))
+
+def load_few_shot_examples(ex_file : str = ''):
+    if not os.path.exists(ex_file):
+            raise FileNotFoundError(f'Cannot load domain: {dom_file} does not exist')
     
+    with open(ex_file, 'r') as fin:
+        j_obj = json.JSONDecoder().decode(fin.read())
+
+    examples = []
+    for ex in j_obj['examples']:
+        examples.append({"prompt": ex['prompt'], "story" : ex['story']})
+
+    return examples
+    
+def gen_openai_story(plan : list[State], input_list : list[list[str]]):
+    #Get Key
+    openai_api_key = getpass()
+    os.environ["OPENAI_API_KEY"] = openai_api_key
+
+    llm = OpenAI()
+    prompt = PromptTemplate(
+        input_variables = ["genre", "subject", "details", "plan"],
+        template = "You are a professional {genre} writer. I am a computer scientist. "   +
+        "We are collaborating on an experimental writing technique. I will provide you "  +
+        "with lists operations that result from a classical planner built on "            +
+        "propositional logic, each by a *. For example, move-11-21 is an operation that " +
+        "moves an agent from cell (1,1) to cell (2,1) in a grid. You will respond with "  +
+        "a fictional story about {subject} where main character takes actions that "      +
+        "math the plan operations. Ensure {details}. For example, \"move-11-21 * "        +
+        "move-21-31 * move-31-41 * move-41-42\" should give a story where the main "      +
+        "character is traveling. Here is your plan: {plan}" 
+    )
+    
+    llm_chain = LLMChain(llm = llm, prompt = prompt)
+    llm_chain.apply(input_list)
+    
+    return llm_chain.run()
+
+def gen_llama_story(plan : list[State], input_list : list[list[str]]):
+    
+    llm = LlamaCpp( model_path="LLAMA_MODEL_PATH", verbose=True)
+
+    #prompt to format user's perferences
+    story_prompt = PromptTemplate(
+        input_variables = ["genre", "subject", "details", "plan"],
+        template = "You are a professional {genre} writer. I am a computer scientist. "   +
+        "We are collaborating on an experimental writing technique. I will provide you "  +
+        "with lists operations that result from a classical planner built on "            +
+        "propositional logic, each by a *. For example, move-11-21 is an operation that " +
+        "moves an agent from cell (1,1) to cell (2,1) in a grid. You will respond with "  +
+        "a fictional story about {subject} where main character takes actions that "      +
+        "math the plan operations. Ensure {details}. For example, \"move-11-21 * "        +
+        "move-21-31 * move-31-41 * move-41-42\" should give a story where the main "      +
+        "character is traveling. Here is your plan: {plan}"  
+    )
+
+    #prompt to format few shot examples
+    example_prompt = PromptTemplate(input_variables=["prompt", "story"], template="{prompt}\n{story}")
+
+    #from our examples, create an example_selector so we can select
+    #semantically relevant examples
+    example_selector = SemanticSimilarityExampleSelector.from_examples(
+        load_few_shot_examples('./domain_examples/few-shot-examples.json'),
+        LlamaCppEmbeddings(model_path="LLAMA_MODEL_PATH"),
+        Chroma,
+        k=1
+    )
+
+    #We go through each input to individually select semantically relevant examples
+    for var in input_list:
+
+        story_prompt_text = story_prompt.format(var)
+        
+        #request the semantically similar examples
+        selected_examples = example_selector.select_examples({"prompt": story_prompt_text})
+
+        #create a prompt that positions selected examples above the
+        #user prompt template
+        few_shot_prompt = FewShotPromptTemplate(
+            example_selector=example_selector, 
+            example_prompt=example_prompt, 
+            input_variables=["input"]
+        )
+        
+        llm_chain = LLMChain(llm=llm, prompt=few_shot_prompt)
+
+        #for each of the user's inputs, apply the input to the
+        #few_shot prompt. 
+        llm_chain.apply(story_prompt_text)
+        llm_chain.run()
+    
+
+
 if __name__ == '__main__':
     '''
         main function for testing purposes
@@ -340,24 +444,29 @@ if __name__ == '__main__':
     assert P.calc_h(x,y) == 3
 
     #A*-dev
+    '''
     P.init_test()
 
     a = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
     b = State({'R2Clean' : True, 'inR1':True,'inR2':True,})
     c = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
 
-    d = State({'r23': True})
-    e = State({'r34': True})
+    d = State({'r23': True, 'b23': True})
+    e = State({'r34': True, 'b45': True})
     f = State({'r55': True})
-    g = State({'r51': True})
+    g = State({'r51': True, 'b44': True})
 
     #State Equality tests
     #assert a == c
     assert a != b
     P.load_domain('./domain_examples/del-robot-domain.json')
+    '''
+    
     #solve and print
-    P.make_plan_astar([d,e,f,g])
+    '''
+    P.make_plan_astar([d,e])
     P.print_sol()
+    '''
 
 #Code that should be used if we ever transition to weighted graphs
 #insert under 'new_state = op.apply(current)'

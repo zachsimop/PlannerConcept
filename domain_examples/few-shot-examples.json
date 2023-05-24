@@ -1,0 +1,22 @@
+{
+    "examples": [
+
+        {
+            "prompt": "P1",
+            "story" : "S1"
+        },
+        {
+            "prompt": "P2",
+            "story" : "S2"
+        },
+        {
+            "prompt": "P3",
+            "story" : "S3"
+        },
+        {
+            "prompt": "P4",
+            "story" : "S4"
+        }
+
+    ]
+}
