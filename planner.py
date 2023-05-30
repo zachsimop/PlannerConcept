@@ -1,89 +1,6 @@
-#OpenAi
-from langchain.llms import OpenAI
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from getpass import getpass         #To get the openai key
-
-#Llama
-from langchain.embeddings import LlamaCppEmbeddings
-from langchain.llms import LlamaCpp
-from langchain.vectorstores import Chroma
-from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
-
-import heapq
+from plannerUtils import *
+from pipelines    import *
 import json
-import os
-
-class State:
-    def __init__(self, dbase: dict[str, bool]) -> None:
-        self.dbase = {var: val for var,val in dbase.items()}
-        self.op = None
-
-    def __hash__(self):
-        # there's probably a better option than this hash, but it should work and ensure that
-        # multiple State objects with the same database are treated as equivalent
-        return hash(tuple(self.dbase.items()))
-
-    def __eq__(self, rhs):
-        try:
-            assert isinstance(rhs, State)
-        except AssertionError as e:
-            print(rhs)
-            raise e
-        return self.dbase == rhs.dbase
-        
-class Operation:
-    def __init__(self, preconditions: dict[str, bool], effects: dict[str, bool], name : str = None) -> None:
-        self.name = name
-        self.pre = {var: val for var,val in preconditions.items()}
-        self.eff = {var: val for var,val in effects.items()}
-
-    def check(self, x: State) -> bool:
-        '''
-            Check whether the operation can be applied to State x, requiring only that all True
-            variables in self.pre are present and True in State x. If a variable p is False in
-            self.pre, x may either not explicitly list p or it may list p as False.
-        '''
-        for var, val in self.pre.items():
-            if val:
-                if var not in x.dbase or not x.dbase[var]:
-                    return False
-            else:
-                if var in x.dbase and x.dbase[var]:
-                    return False
-        return True
-                
-    def check_strict(self, x: State) -> bool:
-        '''
-            Check whether the operation can be applied to State x, requiring that all False
-            variables in self.pre are explicitly False in State x
-        '''
-        return all(var in x.dbase and x.dbase[var] == val for var, val in self.pre.items())
-    
-    def apply(self, x: State) -> State:
-        new_state = State(x.dbase)
-        for var, val in self.eff.items():
-            new_state.dbase[var] = val
-        return new_state
-
-class PriorityQueue:
-    def __init__(self):
-        self.heap =  list()
-    
-    def empty(self) -> bool:
-        return not self.heap
-    
-    def put(self, state: State, priority: int, c: int):
-        heapq.heappush(self.heap, [priority, c, state])
-    
-    def get(self) -> State:
-        return heapq.heappop(self.heap)[2]
-    
-    def states(self) -> list():
-        '''
-            Return a list of the states in the priority queue
-        '''
-        return [val[2] for val in self.heap]
 
 class Planner:
 
@@ -134,7 +51,7 @@ class Planner:
                 visited.update({goal : current})
                 self.sol = self.getPath(visited, goal, start)[::-1]
                 if len(milestones) != 2:
-                    self.sol[-1].op += " |m| "
+                    #self.sol[-1].op += " |m| " #Uncomment to track milestones in plan print
                     self.sol += self.make_plan_astar(milestones[1:])
                 return self.sol
             
@@ -251,232 +168,19 @@ class Planner:
     
     def print_sol(self):
         if self.sol:
-            self.sol[0].op += " |s| "
-            self.sol[-1].op += " |g| "
+            #self.sol[0].op += " |s| " #uncomment to mark start and ends in plan
+            #self.sol[-1].op += " |g| "
             print(*[var.op for var in self.sol], sep = "\n")
         else:
             print("No Solution")
+    def sol_to_string(self) -> str:
+        if self.sol:
+            sol_str = ""
+            for var in self.sol: sol_str += (" " + var.op) 
+            return sol_str
+        else:
+            print("No Solution")
+            return None
 
-def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
-    domain = {"name": "delivery-robot",
-              "operators": []
-              }
-    
-    board_dim = 5
-    for i in range(1, board_dim+1):
-        for j in range(1, board_dim+1):
-            # movement operators for square i,j
-            for d_i in [-1,1]:
-                if 1 <= i + d_i <= board_dim:
-                    op = {"name": f'move-{i}{j}-{i+d_i}{j}',
-                          "pre": {f'r{i}{j}' : True},
-                          "eff": {f'r{i}{j}' : False,
-                                  f'r{i+d_i}{j}': True}}
-                    domain['operators'].append(op)
-            for d_j in [-1,1]:
-                if 1 <= j + d_j <= board_dim:
-                    op = {"name": f'move-{i}{j}-{i}{j+d_j}',
-                          "pre": {f'r{i}{j}' : True},
-                          "eff": {f'r{i}{j}' : False,
-                                  f'r{i}{j+d_j}': True}}
-                    domain['operators'].append(op)
-            
-            # pickup and dropoff operators for square i,j
-            op = {"name": f'pickup-{i}{j}',
-                  "pre": {f'r{i}{j}' : True,
-                          f'b{i}{j}' : True,
-                          'h' : False},
-                  "eff": {f'b{i}{j}' : False,
-                          'h': True}}
-            domain['operators'].append(op)
-            op = {"name": f'dropoff-{i}{j}',
-                  "pre": {f'r{i}{j}' : True,
-                          f'b{i}{j}' : False,
-                          'h' : True},
-                  "eff": {f'b{i}{j}' : True,
-                          'h': False}}
-            domain['operators'].append(op)
-    
-    with open(output_file, 'w') as fout:
-        fout.write(json.JSONEncoder().encode(domain))
-
-def load_few_shot_examples(ex_file : str = ''):
-    if not os.path.exists(ex_file):
-            raise FileNotFoundError(f'Cannot load domain: {dom_file} does not exist')
-    
-    with open(ex_file, 'r') as fin:
-        j_obj = json.JSONDecoder().decode(fin.read())
-
-    examples = []
-    for ex in j_obj['examples']:
-        examples.append({"prompt": ex['prompt'], "story" : ex['story']})
-
-    return examples
-    
-def gen_openai_story(plan : list[State], input_list : list[list[str]]):
-    #Get Key
-    openai_api_key = getpass()
-    os.environ["OPENAI_API_KEY"] = openai_api_key
-
-    llm = OpenAI()
-    prompt = PromptTemplate(
-        input_variables = ["genre", "subject", "details", "plan"],
-        template = "You are a professional {genre} writer. I am a computer scientist. "   +
-        "We are collaborating on an experimental writing technique. I will provide you "  +
-        "with lists operations that result from a classical planner built on "            +
-        "propositional logic, each by a *. For example, move-11-21 is an operation that " +
-        "moves an agent from cell (1,1) to cell (2,1) in a grid. You will respond with "  +
-        "a fictional story about {subject} where main character takes actions that "      +
-        "math the plan operations. Ensure {details}. For example, \"move-11-21 * "        +
-        "move-21-31 * move-31-41 * move-41-42\" should give a story where the main "      +
-        "character is traveling. Here is your plan: {plan}" 
-    )
-    
-    llm_chain = LLMChain(llm = llm, prompt = prompt)
-    llm_chain.apply(input_list)
-    
-    return llm_chain.run()
-
-def gen_llama_story(plan : list[State], input_list : list[list[str]]):
-    
-    llm = LlamaCpp( model_path="LLAMA_MODEL_PATH", verbose=True)
-
-    #prompt to format user's perferences
-    story_prompt = PromptTemplate(
-        input_variables = ["genre", "subject", "details", "plan"],
-        template = "You are a professional {genre} writer. I am a computer scientist. "   +
-        "We are collaborating on an experimental writing technique. I will provide you "  +
-        "with lists operations that result from a classical planner built on "            +
-        "propositional logic, each by a *. For example, move-11-21 is an operation that " +
-        "moves an agent from cell (1,1) to cell (2,1) in a grid. You will respond with "  +
-        "a fictional story about {subject} where main character takes actions that "      +
-        "math the plan operations. Ensure {details}. For example, \"move-11-21 * "        +
-        "move-21-31 * move-31-41 * move-41-42\" should give a story where the main "      +
-        "character is traveling. Here is your plan: {plan}"  
-    )
-
-    #prompt to format few shot examples
-    example_prompt = PromptTemplate(input_variables=["prompt", "story"], template="{prompt}\n{story}")
-
-    #from our examples, create an example_selector so we can select
-    #semantically relevant examples
-    example_selector = SemanticSimilarityExampleSelector.from_examples(
-        load_few_shot_examples('./domain_examples/few-shot-examples.json'),
-        LlamaCppEmbeddings(model_path="LLAMA_MODEL_PATH"),
-        Chroma,
-        k=1
-    )
-
-    #We go through each input to individually select semantically relevant examples
-    for var in input_list:
-
-        story_prompt_text = story_prompt.format(var)
-        
-        #request the semantically similar examples
-        selected_examples = example_selector.select_examples({"prompt": story_prompt_text})
-
-        #create a prompt that positions selected examples above the
-        #user prompt template
-        few_shot_prompt = FewShotPromptTemplate(
-            example_selector=example_selector, 
-            example_prompt=example_prompt, 
-            input_variables=["input"]
-        )
-        
-        llm_chain = LLMChain(llm=llm, prompt=few_shot_prompt)
-
-        #for each of the user's inputs, apply the input to the
-        #few_shot prompt. 
-        llm_chain.apply(story_prompt_text)
-        llm_chain.run()
-    
-
-
-if __name__ == '__main__':
-    '''
-        main function for testing purposes
-    '''
-    x = State({'p': True, 'q': False})
-    y = State({'p': True, 'q': True})
-    P = Planner()
-    op1 = Operation({'p': True, 'q': False, 'r': False}, dict())
-    op2 = Operation({'q': False}, dict())
-
-    assert op1.check(x) == True
-    assert op1.check(y) == False
-    
-    # operation-dev
-    assert op1.check_strict(x) == False
-    assert op1.check_strict(y) == False
-    assert op2.check_strict(x) == True
-    assert op2.check_strict(y) == False
-
-    #heuristic-dev
-    '''      
-    S1 {p}
-    S2 {p, q}
-    '''
-    assert P.calc_h(x,y) == 1
-
-    '''
-    S1 {p, x}
-    S2 {p, q}
-    '''
-    x.dbase.update({'r': True})
-    assert P.calc_h(x,y) == 2
-
-    '''
-    Ensures that the function will handle the case where even if the state is strictly
-    represented, it will not count the value
-    S1 {p, x}
-    S2 {p, q}
-    '''
-    y.dbase.update({'s': False})
-    assert P.calc_h(x,y) == 2
-
-    '''
-    Ensures that if a state is represented as true in one state and false in the other,
-    it will be counted.
-    S1 {p, x, s}
-    S2 {p, q}
-    '''
-    x.dbase.update({'s': True})
-    assert P.calc_h(x,y) == 3
-
-    #A*-dev
-    '''
-    P.init_test()
-
-    a = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
-    b = State({'R2Clean' : True, 'inR1':True,'inR2':True,})
-    c = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
-
-    d = State({'r23': True, 'b23': True})
-    e = State({'r34': True, 'b45': True})
-    f = State({'r55': True})
-    g = State({'r51': True, 'b44': True})
-
-    #State Equality tests
-    #assert a == c
-    assert a != b
-    P.load_domain('./domain_examples/del-robot-domain.json')
-    '''
-    
-    #solve and print
-    '''
-    P.make_plan_astar([d,e])
-    P.print_sol()
-    '''
-
-#Code that should be used if we ever transition to weighted graphs
-#insert under 'new_state = op.apply(current)'
-'''
-                    if new_state in open_states:
-                        if new_cost <= new_state in open_states:
-                            open_states.remove(new_state)
-                    if new_state in closed:
-                        if new_cost <= new_state in closed:
-                            closed_states.
-'''
 
     
