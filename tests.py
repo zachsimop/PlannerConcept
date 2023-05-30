@@ -59,24 +59,27 @@ def run_tests():
     b = State({'R2Clean' : True, 'inR1':True,'inR2':True,})
     c = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
 
-    d = State({'r23': True})
-    e = State({'r22': True})
+    d = State({'r23': True, 'w24': True, 'w14': True})
+    e = State({'r25': True})
     f = State({'r25': True})
     g = State({'r51': True, 'b44': True})
 
     #State Equality tests
     #assert a == c
     assert a != b
+    gen_del_rob_ex()
     P.load_domain('./domain_examples/del-robot-domain.json')
     
     
     #solve and print
-    P.make_plan_astar([d,e,f])
+    P.make_plan_astar([d,e])
     P.print_sol()
     sol_str = P.sol_to_string()
+    '''
     gen_openai_story([{'genre'   : "histrical fiction",
                        'subject' : "John Muir",
                        'details' : "The main character dies",
                        'plan'   : sol_str}])
+    '''
 
 if __name__ == '__main__': run_tests()

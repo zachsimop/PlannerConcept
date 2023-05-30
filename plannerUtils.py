@@ -3,7 +3,7 @@ Defines the classes leveraged in Planner. Mostly used for the A* algorithm
 '''
 
 import heapq
-
+import json
 class State:
     def __init__(self, dbase: dict[str, bool]) -> None:
         self.dbase = {var: val for var,val in dbase.items()}
@@ -86,18 +86,18 @@ def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
             for d_i in [-1,1]:
                 if 1 <= i + d_i <= board_dim:
                     op = {"name": f'move-{i}{j}-{i+d_i}{j}',
-                          "pre": {f'r{i}{j}' : True},
+                          "pre": {f'r{i}{j}' : True, f'w{i+d_i}{j}' : False},
                           "eff": {f'r{i}{j}' : False,
                                   f'r{i+d_i}{j}': True}}
                     domain['operators'].append(op)
             for d_j in [-1,1]:
                 if 1 <= j + d_j <= board_dim:
                     op = {"name": f'move-{i}{j}-{i}{j+d_j}',
-                          "pre": {f'r{i}{j}' : True},
+                          "pre": {f'r{i}{j}' : True, f'w{i}{j+d_j}' : False},
                           "eff": {f'r{i}{j}' : False,
                                   f'r{i}{j+d_j}': True}}
                     domain['operators'].append(op)
-            
+
             # pickup and dropoff operators for square i,j
             op = {"name": f'pickup-{i}{j}',
                   "pre": {f'r{i}{j}' : True,
@@ -113,7 +113,8 @@ def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
                   "eff": {f'b{i}{j}' : True,
                           'h': False}}
             domain['operators'].append(op)
-    
+
+
     with open(output_file, 'w') as fout:
         fout.write(json.JSONEncoder().encode(domain))
 
