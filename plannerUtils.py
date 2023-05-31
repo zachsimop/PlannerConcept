@@ -3,6 +3,7 @@ Defines the classes leveraged in Planner. Mostly used for the A* algorithm
 '''
 
 import heapq
+import os
 import json
 class State:
     def __init__(self, dbase: dict[str, bool]) -> None:
@@ -120,9 +121,9 @@ def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
 
 def load_few_shot_examples(ex_file : str = ''):
     if not os.path.exists(ex_file):
-            raise FileNotFoundError(f'Cannot load domain: {dom_file} does not exist')
-    
-    with open(ex_file, 'r') as fin:
+            raise FileNotFoundError(f'Cannot load domain: {ex_file} does not exist')
+
+    with open(ex_file, 'r', encoding="utf8") as fin:
         j_obj = json.JSONDecoder().decode(fin.read())
 
     examples = []

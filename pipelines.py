@@ -9,7 +9,9 @@ from langchain.llms import LlamaCpp
 from langchain.vectorstores import Chroma
 from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
 
+from plannerUtils import load_few_shot_examples
 import os
+
 
 def gen_openai_story(input_list : list[list[str]]):
 
@@ -94,4 +96,3 @@ def gen_llama_story(input_list):
         #few_shot prompt. 
         llm_chain.apply(story_prompt_text)
         llm_chain.run()
-    

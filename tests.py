@@ -67,10 +67,11 @@ def run_tests():
     #State Equality tests
     #assert a == c
     assert a != b
-    gen_del_rob_ex()
-    P.load_domain('./domain_examples/del-robot-domain.json')
-    
-    
+    # gen_del_rob_ex()
+    #tmp = load_few_shot_examples('./domain_examples/few-shot-examples.json')
+    gen_block_ex()
+    P.load_domain('./domain_examples/block-domain.json')
+
     #solve and print
     P.make_plan_astar([d,e])
     P.print_sol()
