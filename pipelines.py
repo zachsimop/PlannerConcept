@@ -15,9 +15,6 @@ import os
 
 def gen_openai_story(input_list : list[list[str]]):
 
-    #Get Key
-    os.environ["OPENAI_API_KEY"] = "" #ENTER YOUR API KEY HERE
-
     llm = OpenAI(model_name="text-davinci-003",temperature = 0.5, openai_api_key=os.getenv("OPENAI_API_KEY"))
     prompt = PromptTemplate(
         input_variables = ["genre", "subject", "details", "plan"],
