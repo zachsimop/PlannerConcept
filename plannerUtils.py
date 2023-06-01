@@ -5,6 +5,8 @@ Defines the classes leveraged in Planner. Mostly used for the A* algorithm
 import heapq
 import os
 import json
+import os
+
 class State:
     def __init__(self, dbase: dict[str, bool]) -> None:
         self.dbase = {var: val for var,val in dbase.items()}
