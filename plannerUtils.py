@@ -3,6 +3,7 @@ Defines the classes leveraged in Planner. Mostly used for the A* algorithm
 '''
 
 import heapq
+import os
 import json
 import os
 
@@ -69,7 +70,7 @@ class PriorityQueue:
         heapq.heappush(self.heap, [priority, c, state])
     
     def get(self) -> State:
-        return heapq.heappop(self.heap)[2]
+        return heapq.heappop(self.heap)
     
     def states(self) -> list():
         '''
@@ -120,11 +121,52 @@ def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
     with open(output_file, 'w') as fout:
         fout.write(json.JSONEncoder().encode(domain))
 
+def gen_block_ex(output_file='./domain_examples/block-domain.json'):
+    domain = {"name": "block",
+              "operators": []
+              }
+    ascii_offset = 96
+    uid = 0
+    num_of_piles = 3
+    block_dim = 5
+    # for each block type
+    for i in range(1, block_dim + 1):
+        # for each pile move combo
+        for j in range(1, num_of_piles + 1):
+            for k in range(1, num_of_piles + 1):
+                # Do not generate moves from pile j to itself
+                if j != k:
+                    # for possible block combos at pile(k)
+                    # 0 included to incoperate the possibility of no blocks
+                    # being in the pile
+                    for l in range(0, block_dim + 1):
+                        if i != l:
+                            for m in range(0, block_dim + 1):
+                                b1 = chr(i + ascii_offset)
+                                b2 = chr(l + ascii_offset)
+                                b3 = chr(m + ascii_offset)
+                                op = {"name": f'move-{b1}-{j}-{k}-{uid}',
+                                      "pre": {f'{b1}t{j}' : True,            # does block a cap pile j
+                                              f'{b1}{b2}' : True,            # is block a on block b
+                                              f'{b3}t{k}' : True,            # does block c cap pile k
+                                              },
+                                      "eff": {f'{b2}t{j}' : True,            # block b becomes top of pile j
+                                              f'{b1}t{j}' : False,           # block a no longer caps pile j
+                                              f'{b1}t{k}' : True,            # block a now caps pile k
+                                              f'{b1}{b2}' : False,           # a is no longer on b
+                                              f'{b1}{b3}' : True,            # a is now on c
+                                              f'{b3}t{k}' : False,           # c is no longer on top
+                                              }}
+                                domain['operators'].append(op)
+                                uid += 1
+
+    with open(output_file, 'w') as fout:
+        fout.write(json.JSONEncoder().encode(domain))
 def load_few_shot_examples(ex_file : str = ''):
     if not os.path.exists(ex_file):
-            raise FileNotFoundError(f'Cannot load domain: {dom_file} does not exist')
-    
-    with open(ex_file, 'r') as fin:
+            raise FileNotFoundError(f'Cannot load domain: {ex_file} does not exist')
+
+    with open(ex_file, 'r', encoding="utf8") as fin:
         j_obj = json.JSONDecoder().decode(fin.read())
 
     examples = []

@@ -10,9 +10,8 @@ from langchain.llms import LlamaCpp
 from langchain.vectorstores import Chroma
 from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
 
-import os
-
 from plannerUtils import load_few_shot_examples
+import os
 
 def gen_openai_story(input_list : list[list[str]]):
     llm = OpenAI(model_name="text-davinci-003",temperature = 0.5, openai_api_key=os.getenv("OPENAI_API_KEY"))

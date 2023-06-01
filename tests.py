@@ -6,7 +6,7 @@ def run_tests():
     '''
     x = State({'p': True, 'q': False})
     y = State({'p': True, 'q': True})
-    P = Planner()
+    P = Planner(PlannerType.del_rob)
     op1 = Operation({'p': True, 'q': False, 'r': False}, dict())
     op2 = Operation({'q': False}, dict())
 
@@ -52,29 +52,24 @@ def run_tests():
     assert P.calc_h(x,y) == 3
 
     #A*-dev
-    
-    P.init_test()
 
-    a = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
-    b = State({'R2Clean' : True, 'inR1':True,'inR2':True,})
-    c = State({'inR1':True,'inR2':False,'R1Clean':False,'R2Clean':False})
-
+    P.set_type(PlannerType.block)
     d = State({'r23': True, 'w24': True, 'w14': True})
     e = State({'r25': True})
     f = State({'r25': True})
     g = State({'r51': True, 'b44': True})
 
+    d = [['A','C','B'], [], []]
+    e = [[], [], ['A','C','B']]
+    f = [[], ['B','C'], ['A']]
     #State Equality tests
     #assert a == c
-    assert a != b
-    gen_del_rob_ex()
-    P.load_domain('./domain_examples/del-robot-domain.json')
-    
-    
+    gen_block_ex()
+    #tmp = load_few_shot_examples('./domain_examples/few-shot-examples.json')
+    P.load_domain('./domain_examples/block-domain.json')
     #solve and print
-    P.make_plan_astar([d,e])
+    P.make_plan_astar([d,e,f])
     P.print_sol()
-    sol_str = P.sol_to_string()
     '''
     gen_openai_story([{'genre'   : "histrical fiction",
                        'subject' : "John Muir",

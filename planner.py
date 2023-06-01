@@ -1,13 +1,24 @@
 from plannerUtils import *
 from pipelines    import *
+from enum import Enum
 import json
+class PlannerType(Enum):
+    del_rob = 0
+    block = 1
 
 class Planner:
 
-    def __init__(self, name : str = None, dom_file : str = None) -> None:
+    def __init__(self, type : PlannerType = None, name : str = None, dom_file : str = None) -> None:
         self.name = name
         self.ops = {}
         self.sol = []
+        self.type = None
+        if type is not None:
+            self.set_type(type)
+        else:
+            self.set_type(PlannerType.del_rob)
+
+        self.type = type
         if dom_file is not None:
             self.load_domain(dom_file)
 
@@ -32,7 +43,9 @@ class Planner:
                 state_analyzed = first in open.
                 if state is final_state, return state.
         '''
+
         #initalize
+        milestones    = self.handle_input(milestones)
         open_states   = PriorityQueue()
         closed_states = list()
         visited       = {}
@@ -46,7 +59,7 @@ class Planner:
         #main loop
         while not open_states.empty():
 
-            current = open_states.get()
+            current = open_states.get()[2]
             if self.compare_goal(current, goal):
                 visited.update({goal : current})
                 self.sol = self.getPath(visited, goal, start)[::-1]
@@ -79,43 +92,7 @@ class Planner:
             path.append(current)
             current = visited[current]
         return path
-    
-    def init_test(self):
-        
-        #TEST OPS DEFINITION
-        #cleanRl
-        self.ops.update({'cleanR1':
-                         Operation(
-                             #precondictions
-                             {'inR1' : True, 'R1Clean': False},
-                             #effects
-                             {'R1Clean' : True})
-                         })
 
-        #cleanR2
-        self.ops.update({'cleanR2':
-                         Operation(
-                             {'inR2' : True, 'R2Clean': False},
-                             {'R2Clean' : True})
-                         })
-
-        #MoveR1
-        self.ops.update({'moveToR1':
-                         Operation(
-                             {'inR2' : True},
-                             {'inR2' : False, 'inR1' : True})
-                         })
-        
-
-        #MoveR2
-        self.ops.update({'moveToR2':
-                             Operation(
-                                 {'inR1' : True},
-                                 {'inR1' : False, 'inR2' : True})
-                         })
-                         
-        #self.ops.append()
-        
     def load_domain(self, dom_file : str = '') -> None:
         '''
             Loads operations from a file and adds all operations to the calling object's list of
@@ -133,8 +110,8 @@ class Planner:
             j_obj = json.JSONDecoder().decode(fin.read())
 
         #File sourced name should be overridden by name given to instance at creation
-        if self.name is None:
-            self.name = j_obj.get('name', None)
+        # if self.name is None:
+        #     self.name = j_obj.get('name', None)
 
         for op in j_obj['operators']:
             op_name = op.get('name', None)
@@ -168,11 +145,24 @@ class Planner:
     
     def print_sol(self):
         if self.sol:
-            #self.sol[0].op += " |s| " #uncomment to mark start and ends in plan
-            #self.sol[-1].op += " |g| "
-            print(*[var.op for var in self.sol], sep = "\n")
+            print(*[(self.format_sol(var.op), var.dbase) for var in self.sol], sep = "\n")
         else:
             print("No Solution")
+
+    def format_sol(self, op):
+        if self.type is PlannerType.block:
+            res = op[0]
+            c = 0
+            i = 0
+            while c < 4:
+                i+=1
+                if op[i] == "-": c+=1
+                res += op[i]
+            op = res[:-1]
+            return op
+        return op
+
+
     def sol_to_string(self) -> str:
         if self.sol:
             sol_str = ""
@@ -181,6 +171,44 @@ class Planner:
         else:
             print("No Solution")
             return None
+
+    def generate_block_props(self, piles: list[list[str]]) -> dict:
+        props = {}
+        i = 1
+        #generate top propositions
+        for var in piles:
+            if var:
+                props.update({f'{var[0].lower()}t{i}' : True})
+                l = len(var)
+                for j in range(0, l-1):
+                    props.update({f'{var[j].lower()}{var[j+1].lower()}' : True})
+                props.update({f'{var[l-1].lower()}`' : True})
+            else:
+                props.update({f'`t{i}': True})
+            i += 1
+        return props
+
+    def set_type(self, new_type):
+
+        if new_type is PlannerType.block and (self.type is None or self.type is not PlannerType.block):
+            self.load_domain('./domain_examples/block-domain.json')
+            self.type = PlannerType.block
+            return
+
+        if new_type is PlannerType.del_rob and (self.type is None or self.type is not PlannerType.del_rob):
+            self.load_domain('./domain_examples/del-robot-domain.json')
+            self.type = PlannerType.del_rob
+            return
+
+    def handle_input(self, input) -> list[State]:
+        if isinstance(input[0], list): #handles the case where the user inputs a lisst for block domain
+            if self.type is PlannerType.block:
+                block_props = []
+                for var in input:
+                    block_props.append(State(self.generate_block_props(var)))
+                return block_props
+        else: return input
+
 
 
     
