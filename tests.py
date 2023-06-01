@@ -58,7 +58,9 @@ def run_tests():
     e = State({'r25': True})
     f = State({'r25': True})
     g = State({'r51': True, 'b44': True})
-
+    '''
+    d = State({`t1 : True, at2 : True, `t3 : True, ab : true, bc : True, c`: True, ba: False})
+    '''
     d = [['A','C','B'], [], []]
     e = [[], [], ['A','C','B']]
     f = [[], ['B','C'], ['A']]
