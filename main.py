@@ -1,4 +1,5 @@
 from planner import *
+from plannerUtils import del_rob_state_format, block_state_format
 
 #Block Example
 P = Planner(PlannerType.block)
@@ -23,5 +24,7 @@ c = State({'r29': True})
 #Solve and Print
 P.make_plan_astar([a,b])
 print("\n\n-------------* DELIVERY ROBOT *-------------\n")
-P.print_sol()
 
+P.print_sol()
+print(P.format_plan(del_rob_state_format, False))
+print(P.format_plan(del_rob_state_format))

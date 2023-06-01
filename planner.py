@@ -147,6 +147,11 @@ class Planner:
         else:
             print("No Solution")
 
+    def format_plan(self, state_format_function, include_state=True):
+        assert self.sol is not None
+        
+        return '\n'.join(f"{st.op}{' * ' + state_format_function(st) if include_state else ''}" for st in self.sol)
+
     def format_sol(self, op):
         if self.type is PlannerType.block:
             res = op[0]
