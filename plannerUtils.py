@@ -200,17 +200,7 @@ def load_few_shot_examples(ex_file : str = ''):
     with open(ex_file, 'r', encoding="utf8") as fin:
         j_obj = json.JSONDecoder().decode(fin.read())
 
-    examples = []
-    for ex in j_obj['examples']:
-        examples.append({"prompt": ex['prompt'], "story" : ex['story']})
-
-    return examples
+    return j_obj['examples']
 
 if __name__ == '__main__':
-    print(del_rob_state_format(State({'r31':True,
-                                      'b12': True,
-                                      'b42': True,
-                                      'b21': False,
-                                      'h': False,
-                                      'w13':True,
-                                      'w14':True})))
+    print(load_few_shot_examples('./domain_examples/few-shot-examples.json'))
