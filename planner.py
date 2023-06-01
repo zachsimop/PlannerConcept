@@ -1,5 +1,4 @@
 from plannerUtils import *
-from pipelines    import *
 import json
 class Planner:
 
@@ -84,6 +83,9 @@ class Planner:
         path = list()
         current = visited[current]
         while not current == start:
+            #Omit uids for block domain
+            if self.type == PlannerType.block:
+                current.op = self.format_sol(current.op)
             path.append(current)
             current = visited[current]
         return path

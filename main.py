@@ -1,5 +1,6 @@
 from planner import *
 from plannerUtils import del_rob_state_format, block_state_format
+from pipelines import gen_openai_story, gen_llama_story
 
 #Block Example
 P = Planner(PlannerType.block)
@@ -12,8 +13,8 @@ c = [[], ['B', 'C'], ['A']]
 #Solve and Print
 P.make_plan_astar([a,b])
 print("-------------* BLOCK *-------------\n")
-P.print_sol()
-gen_openai_story([], True, PlannerType.block)
+print(P.format_plan(block_state_format, True))
+
 #Delivery Robot
 P.set_type(PlannerType.del_rob)
 
@@ -24,7 +25,6 @@ c = State({'r29': True})
 #Solve and Print
 P.make_plan_astar([a,b])
 print("\n\n-------------* DELIVERY ROBOT *-------------\n")
-
-P.print_sol()
-print(P.format_plan(del_rob_state_format, False))
 print(P.format_plan(del_rob_state_format))
+
+gen_openai_story([], False, PlannerType.block)

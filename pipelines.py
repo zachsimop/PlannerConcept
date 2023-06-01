@@ -9,75 +9,55 @@ from langchain.embeddings import LlamaCppEmbeddings
 from langchain.llms import LlamaCpp
 from langchain.vectorstores import Chroma
 from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
-
-from plannerUtils import load_few_shot_examples, PlannerType
 from planner import *
+from plannerUtils import *
 import os
 
 
 def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
 
-    operator_explanation = ""
-    operator_example = ""
-    operator_output = ""
-    prompt_template = ""
-    rob_state_examples = ["Present Location: (2,1) ; not holding an object ; Object locations: (1,2),(4,2) ; Wall locations: (1,3),(1,4)",
-                      "Present Location: (3,1) ; not holding an object ; Object locations: (1,2),(4,2) ; Wall locations: (1,3),(1,4)",
-                      "Present Location: (4,1) ; not holding an object ; Object locations: (1,2),(4,2) ; Wall locations: (1,3),(1,4)",
-                      "Present Location: (4,2) ; not holding an object ; Object locations: (1,2),(4,2) ; Wall locations: (1,3),(1,4)"]
-
-    block_state_examples = ["Pile 1: c,b Pile 2: a Pile 3: Empty ",
-        'Pile 1: b Pile 2: c,a Pile 3: Empty ',
-        'Pile 1: Empty Pile 2: c,a Pile 3: b ',
-        'Pile 1: Empty Pile 2: a Pile 3: c,b ']
     if include_state:
-        operator_explanation +=("I will provide you with a list operations and states that result from a classical planner built on "+
-        "propositional logic where the operation and its resulting state are seperated by a '*', and each step in the plan is"+
-        " seperated by a newline character (\"\\n\")")
+        operator_explanation = (
+                    "I will provide you with a list operations and states from a classical planner built on " +
+                    "propositional logic where the operation and its resulting state are seperated by a '*', and each step in the plan is" +
+                    " seperated by a newline character (\"\\n\")")
     else:
-        operator_explanation += ("I will provide you with lists operations that result from a classical planner built on "+
-        " propositional logic, each by a newline character (\"\\n\").")
+        operator_explanation = (
+                    "I will provide you with lists operations that result from a classical planner built on " +
+                    " propositional logic, each by a newline character (\"\\n\").")
 
-    if type == PlannerType.block:
-        operator_example += (f'\"move-11-21 {"* "+rob_state_examples[0] if include_state else ""} \n'+
-                              f'move-21-31 {"* "+rob_state_examples[1] if include_state else ""} \n'+
-                              f'move-31-41 {"* "+rob_state_examples[2] if include_state else ""} \n'+
-                              f'move-41-42 {"* "+rob_state_examples[3] if include_state else ""} \"')
+
+    if type == PlannerType.del_rob:
+        P = Planner(PlannerType.del_rob)
+        a = State({'r11': True})
+        b = State({'r42': True})
+        P.make_plan_astar([a, b])
+        operator_example =  P.format_plan(del_rob_state_format, include_state)
+        operator_output = "give a story where the main character is traveling."
+
+
     else:
-        operator_example += (f'\"move-a-1-2 {"* " + block_state_examples[0] if include_state else ""} \n' +
-                              f'move-c-1-2 {"* " + block_state_examples[1] if include_state else ""} \n' +
-                              f'move-b-1-3 {"* " + block_state_examples[2] if include_state else ""} \n' +
-                              f'move-c-2-3 {"* " + block_state_examples[3] if include_state else ""} \"')
+        P = Planner(PlannerType.block)
+        a = [['A', 'C', 'B'], [], []]
+        b = [[], [], ['A', 'C', 'B']]
+        P.make_plan_astar([a, b])
+        operator_example = P.format_plan(block_state_format, include_state)
+        operator_output = "give a story where characters a, b, and c are traveling between locations denoted by each pile."
 
     prompt_template = ("You are a professional {genre} writer. I am a computer scientist. " +
         f'We are collaborating on an experimental writing technique. {operator_explanation}' +
         " You will respond with a fictional story about {subject} where main character takes actions that " +
-        f'math the plan operations. For example, {operator_example} should {operator_output}' +
+        f'math the plan operations. For example, \"{operator_example}\" should {operator_output}' +
         " Ensure {details}. Here is your plan: {plan}")
 
     print(prompt_template)
-    '''
+
     llm = OpenAI(model_name="text-davinci-003",temperature = 0.5, openai_api_key=os.getenv("OPENAI_API_KEY"))
     prompt = PromptTemplate(
         input_variables = ["genre", "subject", "details", "plan"],
         template = prompt_template
     )
-    '''
-    '''
-    Object locations: (1,2),(4,2) 
-    Pile 1: Empty, Pile 2: A, B Pile 3: C
-    "You are a professional {genre} writer. I am a computer scientist. " +
-    "We are collaborating on an experimental writing technique. I will provide you " +
-    "with a list operations and states that result from a classical planner built on " +
-    "propositional logic where the operation and its resulting state are seperated by a '*', and each operation in the plan is" \
-    " seperated by a newline character (\"\\n\"). For example, ***move-11-21 * {state} is an operation that " +
-    "moves an agent from cell (1,1) to cell (2,1) in a grid. You will respond with " +
-    "a fictional story about {subject} where main character takes actions that " +
-    "math the plan operations. For example, \"move-11-21 *  state ""\ " +
-    "move-21-31 * move-31-41 * move-41-42\" should give a story where the main " +
-    "character is traveling. Ensure {details}. Here is your plan: {plan}"
-    '''
-    '''
+
     stories = []
     story_str = ""
     llm_chain = LLMChain(llm = llm, prompt = prompt)
@@ -86,11 +66,9 @@ def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
         s = llm_chain.run(var)
         stories.append(s)
         story_str += (s + "\n\n")
-    '''
-    '''
     print(story_str)
     return stories
-    '''
+
 def gen_llama_story(input_list, genre='Fiction'):
     llm = LlamaCpp( model_path="./LLaMa/llama.cpp/models/7B/ggml-model-q4_0.bin", verbose=True)
 
