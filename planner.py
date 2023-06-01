@@ -1,11 +1,6 @@
 from plannerUtils import *
 from pipelines    import *
-from enum import Enum
 import json
-class PlannerType(Enum):
-    del_rob = 0
-    block = 1
-
 class Planner:
 
     def __init__(self, type : PlannerType = None, name : str = None, dom_file : str = None) -> None:
@@ -145,7 +140,10 @@ class Planner:
     
     def print_sol(self):
         if self.sol:
-            print(*[(self.format_sol(var.op), var.dbase) for var in self.sol], sep = "\n")
+            if self.type == PlannerType.block:
+                print(*[(self.format_sol(var.op), block_state_format(var)) for var in self.sol], sep = "\n")
+            else:
+                print(*[(self.format_sol(var.op), del_rob_state_format(var)) for var in self.sol], sep="\n")
         else:
             print("No Solution")
 
