@@ -77,6 +77,7 @@ class PriorityQueue:
             Return a list of the states in the priority queue
         '''
         return [val[2] for val in self.heap]
+
 def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
     domain = {"name": "delivery-robot",
               "operators": []
@@ -121,6 +122,30 @@ def gen_del_rob_ex(output_file='./domain_examples/del-robot-domain.json'):
     with open(output_file, 'w') as fout:
         fout.write(json.JSONEncoder().encode(domain))
 
+def del_rob_state_format(state : State) -> str:
+    output = ''
+    output += 'Present Location: '
+    for var, is_true in state.dbase.items():
+        if var.startswith('r') and is_true:
+            output += f'({var[1]},{var[2]})' + ' ; '
+            break
+
+    output += f"{'' if state.dbase.get('h', False) else 'not '}holding an object ; "
+
+    output += 'Object locations: '
+    for var, is_true in state.dbase.items():
+        if var.startswith('b') and is_true:
+            output += f'({var[1]},{var[2]})' + ','
+    output = output[:-1] + ' ; '
+
+    output += 'Wall locations: '
+    for var, is_true in state.dbase.items():
+        if var.startswith('w') and is_true:
+            output += f'({var[1]},{var[2]})' + ','
+    output = output[:-1]
+
+    return output
+
 def gen_block_ex(output_file='./domain_examples/block-domain.json'):
     domain = {"name": "block",
               "operators": []
@@ -162,6 +187,12 @@ def gen_block_ex(output_file='./domain_examples/block-domain.json'):
 
     with open(output_file, 'w') as fout:
         fout.write(json.JSONEncoder().encode(domain))
+
+def block_state_format(state : State) -> str:
+    output = ''
+
+    return output
+
 def load_few_shot_examples(ex_file : str = ''):
     if not os.path.exists(ex_file):
             raise FileNotFoundError(f'Cannot load domain: {ex_file} does not exist')
@@ -174,3 +205,12 @@ def load_few_shot_examples(ex_file : str = ''):
         examples.append({"prompt": ex['prompt'], "story" : ex['story']})
 
     return examples
+
+if __name__ == '__main__':
+    print(del_rob_state_format(State({'r31':True,
+                                      'b12': True,
+                                      'b42': True,
+                                      'b21': False,
+                                      'h': False,
+                                      'w13':True,
+                                      'w14':True})))
