@@ -223,11 +223,4 @@ def load_few_shot_examples(ex_file : str = ''):
     with open(ex_file, 'r', encoding="utf8") as fin:
         j_obj = json.JSONDecoder().decode(fin.read())
 
-    examples = []
-    for ex in j_obj['examples']:
-        examples.append({"prompt": ex['prompt'], "story" : ex['story']})
-
-    return examples
-
-if __name__ == '__main__':
-    print(block_state_format(State({'dt1' : True, 'at2' : True, '`t3' : True, 'ab' : True, 'bc' : True, 'c`': True, 'ba': False, 'd`' : True})))
+    return j_obj['examples']
