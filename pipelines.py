@@ -41,7 +41,11 @@ def gen_openai_story(input_list : list[list[str]]):
     return stories
 
 def gen_llama_story(input_list, genre, subject, include_state=False):
-    llm = LlamaCpp( model_path="./LLaMa/llama.cpp/models/7B/ggml-model-q4_0.bin", verbose=True)
+    llm = LlamaCpp(model_path="./LLaMa/llama.cpp/models/7B/ggml-model-q4_0.bin",
+                   verbose=True,
+                   max_tokens = 100,
+                   n_ctx = 2048,
+                   stop=['\n'])
 
     #prompt to format few shot examples
     if include_state:
@@ -54,9 +58,9 @@ def gen_llama_story(input_list, genre, subject, include_state=False):
     else:
         prompt_template = 'Write a {genre} short story about {subject}:\n\n{op1}\n{story1}\n\n{op2}\n{story2}\n\n{op3}\n{story3}\n\n{op4}\n{story4}\n\n\n'
         input_variables=["genre",
-                         "subject",
-                         "op1", "op2", "op3", "op4",
-                         "story1", "story2", "story3", "story4"]
+                        "subject",
+                        "op1", "op2", "op3", "op4",
+                        "story1", "story2", "story3", "story4"]
 
     example_prompt = PromptTemplate(input_variables=input_variables,
                                     template=prompt_template)
@@ -85,7 +89,7 @@ def gen_llama_story(input_list, genre, subject, include_state=False):
         llm_chain = LLMChain(llm=llm, prompt=few_shot_prompt)
         output = llm_chain({'genre' : genre,
                             'subject' : subject,
-                            'story' : ''.join([f'{x[0]}:\n{x[1]}\n\n' for x in running_output]) + op + '\n'})
+                            'story' : ''.join([f"{x[0]}:\n{x[1]['text']}\n\n" for x in running_output]) + op + '\n'})
 
         #add output to in-context learning set
         running_output.append((op, output))
@@ -93,6 +97,10 @@ def gen_llama_story(input_list, genre, subject, include_state=False):
     return running_output
 
 if __name__ == '__main__':
-    story = gen_llama_story(['move-12-11', 'move-11-21'], 'fantasy', 'a jewel-encrusted dragon')
+    story = gen_llama_story(['move-12-11 * Present Location: (1,1) ; not holding an object ; Object locations: (1,1); Wall locations: (2,4),(1,4)',
+                             'pickup-11 * Present Location: (1,1) ; holding an object ; Object locations: ; Wall locations: (2,4),(1,4)',
+                             'move-11-12 * Present Location: (1,2) ; holding an object ; Object locations: ; Wall locations: (2,4),(1,4)',
+                             'dropoff-12 * Present Location: (1,2) ; not holding an object ; Object locations: (1,2); Wall locations: (2,4),(1,4)'],
+                             'fantasy', 'a jewel-encrusted dragon', include_state=True)
 
-    print(story)
+    print(''.join([f"{p[0]}:\n{p[1]['text']}\n\n" for p in story]))
