@@ -3,9 +3,12 @@ Defines the classes leveraged in Planner. Mostly used for the A* algorithm
 '''
 
 import heapq
-import os
 import json
 import os
+from enum import Enum
+class PlannerType(Enum):
+    del_rob = 0
+    block = 1
 
 class State:
     def __init__(self, dbase: dict[str, bool]) -> None:
@@ -190,7 +193,21 @@ def gen_block_ex(output_file='./domain_examples/block-domain.json'):
 
 def block_state_format(state : State) -> str:
     output = ''
-
+    for i in range(1, 4):
+        output += f'Pile {i}: '
+        for var, is_true in state.dbase.items():
+            if f't{i}' in var and is_true:
+                b = var[0]
+                if b == "`":
+                    output += "Empty "
+                else:
+                    output += var[0] + ","
+                    while b != '`':
+                        for val, is_true in state.dbase.items():
+                            if b == val[0] and val[1] != 't' and is_true:
+                                b = val[1]
+                                output += val[1] + ","
+                    output = output[:-3] + " "
     return output
 
 def load_few_shot_examples(ex_file : str = ''):
@@ -201,6 +218,3 @@ def load_few_shot_examples(ex_file : str = ''):
         j_obj = json.JSONDecoder().decode(fin.read())
 
     return j_obj['examples']
-
-if __name__ == '__main__':
-    print(load_few_shot_examples('./domain_examples/few-shot-examples.json'))

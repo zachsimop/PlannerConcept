@@ -9,23 +9,53 @@ from langchain.embeddings import LlamaCppEmbeddings
 from langchain.llms import LlamaCpp
 from langchain.vectorstores import Chroma
 from langchain.prompts.example_selector import SemanticSimilarityExampleSelector
-
-from plannerUtils import load_few_shot_examples
+from planner import *
+from plannerUtils import *
 import os
 
-def gen_openai_story(input_list : list[list[str]]):
+
+def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
+
+    if include_state:
+        operator_explanation = (
+                    "I will provide you with a list operations and states from a classical planner built on " +
+                    "propositional logic where the operation and its resulting state are seperated by a '*', and each step in the plan is" +
+                    " seperated by a newline character (\"\\n\")")
+    else:
+        operator_explanation = (
+                    "I will provide you with lists operations that result from a classical planner built on " +
+                    " propositional logic, each by a newline character (\"\\n\").")
+
+
+    if type == PlannerType.del_rob:
+        P = Planner(PlannerType.del_rob)
+        a = State({'r11': True})
+        b = State({'r42': True})
+        P.make_plan_astar([a, b])
+        operator_example =  P.format_plan(del_rob_state_format, include_state)
+        operator_output = "give a story where the main character is traveling."
+
+
+    else:
+        P = Planner(PlannerType.block)
+        a = [['A', 'C', 'B'], [], []]
+        b = [[], [], ['A', 'C', 'B']]
+        P.make_plan_astar([a, b])
+        operator_example = P.format_plan(block_state_format, include_state)
+        operator_output = "give a story where characters a, b, and c are traveling between locations denoted by each pile."
+
+    prompt_template = ("You are a professional {genre} writer. I am a computer scientist. " +
+        f'We are collaborating on an experimental writing technique. {operator_explanation}' +
+        " You will respond with a fictional story about {subject} where main character takes actions that " +
+        f'math the plan operations. For example, \"{operator_example}\" should {operator_output}' +
+        " Ensure {details}. Here is your plan: {plan}")
+
+    print(prompt_template)
+
     llm = OpenAI(model_name="text-davinci-003",temperature = 0.5, openai_api_key=os.getenv("OPENAI_API_KEY"))
     prompt = PromptTemplate(
         input_variables = ["genre", "subject", "details", "plan"],
-        template = "You are a professional {genre} writer. I am a computer scientist. "   +
-        "We are collaborating on an experimental writing technique. I will provide you "  +
-        "with lists operations that result from a classical planner built on "            +
-        "propositional logic, each by a *. For example, move-11-21 is an operation that " +
-        "moves an agent from cell (1,1) to cell (2,1) in a grid. You will respond with "  +
-        "a fictional story about {subject} where main character takes actions that "      +
-        "math the plan operations. Ensure {details}. For example, \"move-11-21 * "        +
-        "move-21-31 * move-31-41 * move-41-42\" should give a story where the main "      +
-        "character is traveling. Here is your plan: {plan}" 
+        template = prompt_template
     )
 
     stories = []
@@ -36,7 +66,6 @@ def gen_openai_story(input_list : list[list[str]]):
         s = llm_chain.run(var)
         stories.append(s)
         story_str += (s + "\n\n")
-  
     print(story_str)
     return stories
 
