@@ -14,7 +14,7 @@ from plannerUtils import *
 import os
 
 
-def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
+def gen_openai_story(input_list, include_state: bool, type):
 
     if include_state:
         operator_explanation = (
@@ -42,7 +42,7 @@ def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
         b = [[], [], ['A', 'C', 'B']]
         P.make_plan_astar([a, b])
         operator_example = P.format_plan(block_state_format, include_state)
-        operator_output = "give a story where characters a, b, and c are traveling between locations denoted by each pile."
+        operator_output = "give a story where each block denoted by single letters are traveling between locations denoted by each pile and doing things at each location."
 
     prompt_template = ("You are a professional {genre} writer. I am a computer scientist. " +
         f'We are collaborating on an experimental writing technique. {operator_explanation}' +
@@ -60,13 +60,20 @@ def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
     stories = []
     story_str = ""
     llm_chain = LLMChain(llm = llm, prompt = prompt)
-    
+
+
+    i = 0
     for var in input_list:
+        print("**PROMPT**\n")
+        print(prompt.format(genre=input_list[i]['genre'], subject=input_list[i]['subject'],
+                            details=input_list[i]['details'], plan=input_list[i]['plan']) +"\n")
         s = llm_chain.run(var)
+        print("**STORY**\n")
+        print(s + "\n\n---------------------------------------\n")
         stories.append(s)
-        story_str += (s + "\n\n")
-    print(story_str)
+        i+=1
     return stories
+
 
 def gen_llama_story(input_list, genre, subject, include_state=False):
     llm = LlamaCpp(model_path="./LLaMa/llama.cpp/models/7B/ggml-model-q4_0.bin",
