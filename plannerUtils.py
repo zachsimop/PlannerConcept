@@ -26,7 +26,15 @@ class State:
         except AssertionError as e:
             print(rhs)
             raise e
-        return self.dbase == rhs.dbase
+        for k, v in self.dbase.items():
+            if v:
+                if not rhs.dbase.get(k, False):
+                    return False
+            else:
+                if k in rhs.dbase and rhs.dbase[k]:
+                    return False
+        return True
+
         
 class Operation:
     def __init__(self, preconditions: dict[str, bool], effects: dict[str, bool], name : str = None) -> None:
@@ -149,14 +157,12 @@ def del_rob_state_format(state : State) -> str:
 
     return output
 
-def gen_block_ex(output_file='./domain_examples/block-domain.json'):
+def gen_block_ex(block_dim : int = 5, num_of_piles : int = 3, output_file='./domain_examples/block-domain.json'):
     domain = {"name": "block",
               "operators": []
               }
     ascii_offset = 96
     uid = 0
-    num_of_piles = 3
-    block_dim = 5
     # for each block type
     for i in range(1, block_dim + 1):
         # for each pile move combo
