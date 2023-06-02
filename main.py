@@ -105,5 +105,6 @@ P.make_plan_astar([a,b])
 new_plan = P.format_plan(del_rob_state_format)
 print(new_plan)
 plans.append(new_plan)
+
 pickle.dump(plans, file)
 file.close()
