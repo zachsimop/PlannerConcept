@@ -123,9 +123,9 @@ plans = pickle.load(file)
 # print( *[p for p in plans], sep="\n")
 file.close()
 
-# story = gen_openai_story([{"genre" : "Historical Fiction",
-#                            "subject" : "The Islamic Golden Age",
-#                            "details" : "the story is a tradgedy",
-#                            "plan" : plans[8][0]}],
-#                  True, PlannerType.del_rob)
-print(plans[8][0])
+story = gen_openai_story([{"genre" : "Historical Fiction",
+                           "subject" : "The Islamic Golden Age",
+                           "details" : "the story is a tradgedy",
+                           "plan" : plans[10][1]}],
+                 False, PlannerType.del_rob)
+print(story)

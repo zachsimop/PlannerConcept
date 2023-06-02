@@ -68,6 +68,7 @@ def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
     print(story_str)
     return stories
 
+
 def gen_llama_story(input_list, genre='Fiction'):
     llm = LlamaCpp( model_path="./LLaMa/llama.cpp/models/7B/ggml-model-q4_0.bin", verbose=True)
 
