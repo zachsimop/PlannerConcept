@@ -149,14 +149,12 @@ def del_rob_state_format(state : State) -> str:
 
     return output
 
-def gen_block_ex(output_file='./domain_examples/block-domain.json'):
+def gen_block_ex(block_dim : int = 5, num_of_piles : int = 3, output_file='./domain_examples/block-domain.json'):
     domain = {"name": "block",
               "operators": []
               }
     ascii_offset = 96
     uid = 0
-    num_of_piles = 3
-    block_dim = 5
     # for each block type
     for i in range(1, block_dim + 1):
         # for each pile move combo
