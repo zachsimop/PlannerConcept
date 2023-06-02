@@ -5,6 +5,7 @@ import pickle
 
 # Pickle data formated as:
 # [ [Plan1 w/ state, Plan1 w/out state] [Plan2 w/ state, Plan2 w/out state] ]
+'''
 file = open('./finalPlans.pkl', 'wb')
 plans =[]
 
@@ -116,3 +117,15 @@ plans.append([new_plan, P.format_plan(del_rob_state_format, False)])
 
 pickle.dump(plans, file)
 file.close()
+'''
+file = open("finalPlans.pkl", 'rb')
+plans = pickle.load(file)
+# print( *[p for p in plans], sep="\n")
+file.close()
+
+# story = gen_openai_story([{"genre" : "Historical Fiction",
+#                            "subject" : "The Islamic Golden Age",
+#                            "details" : "the story is a tradgedy",
+#                            "plan" : plans[8][0]}],
+#                  True, PlannerType.del_rob)
+print(plans[8][0])

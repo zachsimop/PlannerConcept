@@ -50,7 +50,6 @@ def gen_openai_story(input_list: list[list[str]], include_state: bool, type):
         f'math the plan operations. For example, \"{operator_example}\" should {operator_output}' +
         " Ensure {details}. Here is your plan: {plan}")
 
-    print(prompt_template)
 
     llm = OpenAI(model_name="text-davinci-003",temperature = 0.5, openai_api_key=os.getenv("OPENAI_API_KEY"))
     prompt = PromptTemplate(
