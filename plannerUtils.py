@@ -26,7 +26,15 @@ class State:
         except AssertionError as e:
             print(rhs)
             raise e
-        return self.dbase == rhs.dbase
+        for k, v in self.dbase.items():
+            if v:
+                if not rhs.dbase.get(k, False):
+                    return False
+            else:
+                if k in rhs.dbase and rhs.dbase[k]:
+                    return False
+        return True
+
         
 class Operation:
     def __init__(self, preconditions: dict[str, bool], effects: dict[str, bool], name : str = None) -> None:

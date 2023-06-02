@@ -30,7 +30,7 @@ class Planner:
                     distance += 1
         return distance
 
-    def make_plan_astar(self, milestones : list[State]) -> list[Operation]:
+    def make_plan_astar(self, milestones: list[State]) -> list[Operation]:
         '''
             Add the initial state to the opened list
             While open is not empty
